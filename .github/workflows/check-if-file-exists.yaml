@@ -1,61 +1,55 @@
-name: "File existence check"
+name: Build tsterm
+on:
+  push:
+    branches:
+      - staging
+      - rc
+      - main
+  pull_request:
+    types: [opened, reopened, synchronize]
 
-on: [push, pull_request]
+  workflow_dispatch:
+    inputs:
+      BRANCH_NAME:
+        description: 'Specify branch name or PR (e.g. PR-41)'
+        required: false
 
 jobs:
-  check_changelog:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: '[Prep 1] Checkout'
+        uses: actions/checkout@v2
+
+      - name: '[Prep 2] Cache node modules'
+        uses: actions/cache@v2
         with:
-            path: copy-repo
-            fetch-depth: ${{ github.event_name == 'pull_request' && 2 || 0 }}
-
-      - name: Get changed files
-        id: changed-files
-        run: |
-            cd copy-repo
-            if ${{ github.event_name == 'pull_request' }}; then
-                echo "changed_files=$(git diff --name-only -r HEAD^1 HEAD | xargs)" >> $GITHUB_OUTPUT
-            else
-                echo "changed_files=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | xargs)" >> $GITHUB_OUTPUT
-            fi
-
-      - name: List changed files
-        id: set-flag
-        run: |
-            cd copy-repo
-            for file in ${{ steps.changed-files.outputs.changed_files }}; do
-                echo "$file was changed"
-                if [[ $file == "CHANGELOG.md" ]]
-                then
-                  echo "file-flag=true" >> $GITHUB_OUTPUT
-                  break;
-                else
-                  echo "file-flag=false" >> $GITHUB_OUTPUT
-                fi
-            done
-
-      - name: echo tests before removing copy-repo
-        run: ls -lart
-
-      - name: Check if CHANGELOG is Updated and Abort if CHANGELOG is not updated
-        if: steps.set-flag.outputs.file-flag != 'true'
-        run: |
-          echo "CHANGELOG not added. Please add the CHANGELOG in the CHANGELOG.md file"
-          exit 1
-
-      - name: Remove Copy-repo
-        if: always()
-        run: rm -r copy-repo
-
-      - name: echo tests after removing copy-repo
-        if: always()
-        run: ls -lart
- 
-  Build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+          path: |
+            ~/.npm
+            ~/.nvm/.cache
+            ~/.nvm/versions
+          key: ${{ runner.os }}-build-cache-node-modules-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-cache-node-modules-
+      - name: '[Prep 3] Setup Node'
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+      - name: '[Install] Install'
+        run: npm ci
+      - name: '[Build] standard'
+        run: npm run build
+      - name: '[Build] iife'
+        run: npm run build:iife
+      - name: '[Build] dts'
+        run: npm run build:dts
+      - name: '[Build] dts iife'
+        run: npm run build:dts:iife
+      - name: '[Test]'
+        run: npm run test
+      - name: '[Upload]'
+        uses: actions/upload-artifact@v3
+        with:
+          name: github-actions
+          path: lib/
+          if-no-files-found: error
