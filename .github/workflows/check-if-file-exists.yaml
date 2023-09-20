@@ -26,5 +26,6 @@ jobs:
         run: |
           # Extract content after "changelog:"
           PR_DESCRIPTION="${{ github.event.pull_request.body }}"
-          CHANGELOG_TEXT=$(echo "$PR_DESCRIPTION" | sed -n '/CHANGELOG:/, $p' | sed '1d')
+          # Extract content after "changelog:"
+          CHANGELOG_TEXT=$(echo "$PR_DESCRIPTION" | sed -n -e '/CHANGELOG:/,/-->/p' | sed '1d' | sed '$d')
           echo "$CHANGELOG_TEXT"
