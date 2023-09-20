@@ -27,6 +27,6 @@ jobs:
           # Extract content after "changelog:"
           PR_DESCRIPTION="${{ github.event.pull_request.body }}"
           # Extract content after "changelog:"
-          CHANGELOG_TEXT=$(echo "$PR_DESCRIPTION" | perl -ne 'BEGIN { $/ = undef; } print "$1" if /CHANGELOG:(.*?)(?=VERSION:|<!--|$)/s')
+          CHANGELOG_TEXT=$(echo "$PR_DESCRIPTION" | sed -n 's/^CHANGELOG: \(.*\)$/\1/p')
           TEMPLATE_CONTENT=$(cat .github/workflows/pull_request_template.md)
           echo "$CHANGELOG_TEXT"
