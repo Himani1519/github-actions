@@ -38,7 +38,7 @@ jobs:
         run: |
           PR_DESCRIPTION="${{ github.event.pull_request.body }}"
           # check if PR description is identical to template.md
-          TEMPLATE_CONTENT=$(cat .github/pull_request_template.md)
+          TEMPLATE_CONTENT=$(cat .github/workflows/pull_request_template.md)
           if [ "$PR_DESCRIPTION" == "$TEMPLATE_CONTENT" ]; then
             echo "PR description is identical to pull_request_template.md"
             exit 1
