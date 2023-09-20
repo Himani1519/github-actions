@@ -47,8 +47,6 @@ jobs:
           if echo "$PR_DESCRIPTION" | grep -q "VERSION:" && echo "$PR_DESCRIPTION" | grep -q "CHANGELOG:"; then
             # Extract content after "changelog:"
             CHANGELOG_TEXT=$(echo "$PR_DESCRIPTION" | awk '/CHANGELOG:/ {flag=1; next} flag')
-            # Removing leading and trailing whitespaces from CHANGELOG_TEXT
-            CHANGELOG_TEXT=$(echo "$CHANGELOG_TEXT" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
             # Check if extracted CHANGELOG_TEXT is empty or identical to the template content
             if [ -z "$CHANGELOG_TEXT" ] || [ "$CHANGELOG_TEXT" == "$TEMPLATE_CONTENT" ]; then
               echo "The changelog information after 'CHANGELOG:' cannot be empty or identical to pull_request_template.md."
