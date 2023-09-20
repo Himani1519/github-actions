@@ -7,16 +7,7 @@ on:
     types: [opened, reopened, synchronize]
 
 jobs:
-  check-permission:
-    runs-on: ubuntu-latest
-    steps:
-      # this action will fail the whole workflow if permission check fails
-      - name: check permission
-        uses: zowe-actions/shared-actions/permission-check@main
-        with:
-          user: ${{ github.actor }}
-          github-repo: ${{ github.repository }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+  
 
   update-changelog:
     if: github.event_name == 'pull_request'
@@ -47,23 +38,27 @@ jobs:
         run: |
           PR_DESCRIPTION="${{ github.event.pull_request.body }}"
           # check if PR description is identical to template.md
-          TEMPLATE_CONTENT =$(cat . github/pull_request_template.md)
-          if [ "$PR_DESCRIPTION" == "$TEMPLATE_CONTENT"];then
-             echo "PR description is identical to pull_request_template.md"
-             exit 1
+          TEMPLATE_CONTENT=$(cat .github/pull_request_template.md)
+          if [ "$PR_DESCRIPTION" == "$TEMPLATE_CONTENT" ]; then
+            echo "PR description is identical to pull_request_template.md"
+            exit 1
           fi
           # Check if "changelog:" exists in PR description
           if echo "$PR_DESCRIPTION" | grep -q "VERSION:" && echo "$PR_DESCRIPTION" | grep -q "CHANGELOG:"; then
             # Extract text after "changelog:"
-            CHANGELOG_TEXT=$(echo $PR_DESCRIPTION | sed -n 's/.*CHANGELOG: \(.*\)/\1/p')
+            CHANGELOG_TEXT=$(echo $PR_DESCRIPTION | sed -n 's/.*CHANGELOG: \(.*\)/\1/p' | tr -d '[:space:]')
+            # Check if extracted CHANGELOG_TEXT is empty
+            if [ -z "$CHANGELOG_TEXT" ]; then
+              echo "The changelog information after 'CHANGELOG:' cannot be empty."
+              exit 1
+            fi
             # Extract VERSION: from PR description
             VERSION=$(echo "$PR_DESCRIPTION" | grep -oP 'VERSION:\s*\Kv\d+\.\d+\.\d+')
             echo "Extracted changelog: $CHANGELOG_TEXT"
             echo "::set-output name=changelog::$CHANGELOG_TEXT"
             echo "::set-output name=version::$VERSION"
           else
-            echo -e "No changelog and version information found in PR description please add them.\n Expected Format:\n VERSION:vX.XX.X\n CHANGELOG:This is changelog note.\n
-            To re-run the action, just make a push or commit after updating the PR description or updating the changelog via a manual file changing commit."
+            echo -e "No changelog and version information found in PR description please add them.\nExpected Format:\nVERSION:vX.XX.X\nCHANGELOG:This is changelog note.\nTo re-run the action, just make a push or commit after updating the PR description or updating the changelog via a manual file changing commit."
             exit 1
           fi
       - name: Check PR body against changelog
