@@ -38,15 +38,17 @@ jobs:
         run: |
           PR_DESCRIPTION="${{ github.event.pull_request.body }}"
           # check if PR description is identical to template.md
-          TEMPLATE_CONTENT=$(cat .github/workflows/pull_request_template.md)
+          TEMPLATE_CONTENT=$(cat .github/pull_request_template.md)
           if [ "$PR_DESCRIPTION" == "$TEMPLATE_CONTENT" ]; then
             echo "PR description is identical to pull_request_template.md"
             exit 1
           fi
           # Check if "changelog:" exists in PR description
           if echo "$PR_DESCRIPTION" | grep -q "VERSION:" && echo "$PR_DESCRIPTION" | grep -q "CHANGELOG:"; then
-            # Extract text after "changelog:"
-            CHANGELOG_TEXT=$(echo $PR_DESCRIPTION | sed -n 's/.*CHANGELOG: \(.*\)/\1/p')
+            # Extract content after "changelog:"
+            CHANGELOG_TEXT=$(echo "$PR_DESCRIPTION" | awk '/CHANGELOG:/ {flag=1; next} flag')
+            # Removing leading and trailing whitespaces from CHANGELOG_TEXT
+            CHANGELOG_TEXT=$(echo "$CHANGELOG_TEXT" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
             # Check if extracted CHANGELOG_TEXT is empty or identical to the template content
             if [ -z "$CHANGELOG_TEXT" ] || [ "$CHANGELOG_TEXT" == "$TEMPLATE_CONTENT" ]; then
               echo "The changelog information after 'CHANGELOG:' cannot be empty or identical to pull_request_template.md."
