@@ -47,7 +47,7 @@ jobs:
           # Check if "changelog:" exists in PR description
           if echo "$PR_DESCRIPTION" | grep -q "VERSION:" && echo "$PR_DESCRIPTION" | grep -q "CHANGELOG:"; then
             # Extract content after "changelog:"
-            CHANGELOG_TEXT=$(echo "$PR_DESCRIPTION" | sed -n -e '/CHANGELOG:/,/-->/p' | sed '1d' | sed '$d')
+            CHANGELOG_TEXT=$(echo "$PR_DESCRIPTION" | awk '/^CHANGELOG:/ {flag=1;next} flag')
             # Check if extracted CHANGELOG_TEXT is empty or identical to the template content
             if [ -z "$CHANGELOG_TEXT" ] || [ "$CHANGELOG_TEXT" == "$TEMPLATE_CONTENT" ]; then
               echo "The changelog information after 'CHANGELOG:' cannot be empty or identical to pull_request_template.md."
