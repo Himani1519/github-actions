@@ -29,3 +29,5 @@ jobs:
           # Extract content after "changelog:"
           CHANGELOG_TEXT=$(echo "$PR_DESCRIPTION" | sed -n -e '/CHANGELOG:/,/-->/p' | sed '1d' | sed '$d')
           echo "$CHANGELOG_TEXT"
+          TEMPLATE_CONTENT=$(cat .github/workflows/pull_request_template.md)
+          echo "$TEMPLATE_CONTENT"
