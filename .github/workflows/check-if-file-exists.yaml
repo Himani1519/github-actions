@@ -1,1 +1,30 @@
+name: test
+on:
+  push:
+    branches:
+      - v2.x/staging
+  pull_request:
+    types: [opened, reopened, synchronize]
 
+jobs:
+  
+
+  update-changelog:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    outputs:
+      was_updated: ${{ steps.check-change.outputs.change_detected }}
+      check_commit: ${{ steps.check-changelog.outputs.check_commit }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+
+      - name: Check for updated CHANGELOG.md using git
+        run: |
+          # Extract content after "changelog:"
+          PR_DESCRIPTION="${{ github.event.pull_request.body }}"
+          CHANGELOG_TEXT=$(echo "$PR_DESCRIPTION" | sed -n '/CHANGELOG:/, $p' | sed '1d')
+          echo "$CHANGELOG_TEXT"
