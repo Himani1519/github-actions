@@ -43,7 +43,7 @@ jobs:
           TEMPLATE_CONTENT_CLEAN=$(echo "$TEMPLATE_CONTENT" | tr -d '[:space:]')
           echo "This is template content .........! $TEMPLATE_CONTENT_CLEAN"
           echo "This is PR description ................$PR_DESCRIPTION_CLEAN"
-          if [ "$PR_DESCRIPTION_CLEAN" == "$TEMPLATE_CONTENT_CLEAN" ]; then
+          if [ "$TEMPLATE_CONTENT" == "$PR_DESCRIPTION" ]; then
             echo "PR description is identical to pull_request_template.md"
             exit 1
           fi
