@@ -25,17 +25,30 @@ jobs:
       - name: Check for updated CHANGELOG.md using git
         id: check-changelog
         run: |
-          echo "${{ github.event.pull_request.body }}" > /tmp/pr_description.txt
-
-      - name: Save template content
+          PR_DESCRIPTION="${{ github.event.pull_request.body }}"
+          echo "$PR_DESCRIPTION" > /tmp/pr_description.txt
+  
+      - name: Store template content
         run: |
-          cat .github/workflows/pull_request_template.md > /tmp/template_content.txt
+          TEMPLATE_CONTENT=$(cat .github/workflows/pull_request_template.md)
+          echo "$TEMPLATE_CONTENT" > /tmp/template_content.txt
+  
+      - name: Debugging - Print contents
+        run: |
+          echo "----- PR Description -----"
+          cat /tmp/pr_description.txt
+          echo "----- Template Content -----"
+          cat /tmp/template_content.txt
+  
+      - name: Normalize newlines
+        run: |
+          sed -i 's/\r//' /tmp/pr_description.txt
+          sed -i 's/\r//' /tmp/template_content.txt
   
       - name: Compare PR description and template
         run: |
-          if diff -wB /tmp/pr_description.txt /tmp/template_content.txt; then
-            echo "PR description and template are different"
-          else
+          if ! diff /tmp/pr_description.txt /tmp/template_content.txt; then
             echo "ERROR: PR description is identical to the template"
             exit 1
           fi
+          echo "Diff exit status: $?"
