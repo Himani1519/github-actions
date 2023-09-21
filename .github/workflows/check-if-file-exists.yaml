@@ -35,7 +35,6 @@ jobs:
   
       - name: Debugging - Print contents
         run: |
-          run: |
           if diff -q /tmp/pr_description.txt /tmp/template_content.txt >/dev/null; then
             echo "ERROR: PR description is identical to the template"
             exit 1
