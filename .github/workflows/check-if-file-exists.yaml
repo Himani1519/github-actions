@@ -37,6 +37,8 @@ jobs:
         run: |
           PR_CONTENT=$(cat /tmp/pr_description.txt)
           TEMPLATE_CONTENT=$(cat /tmp/template_content.txt)
+          echo "...........$PR_CONTENT"
+          echo "...........$TEMPLATE_CONTENT"
 
           if [ "$PR_CONTENT" == "$TEMPLATE_CONTENT" ]; then
               echo "ERROR: PR description is identical to the template"
