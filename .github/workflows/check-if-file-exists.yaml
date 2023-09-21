@@ -13,13 +13,6 @@ jobs:
       - name: Compare PR description to template
         run: |
           PR_DESCRIPTION="${{ github.event.pull_request.body }}"
-          TEMPLATE_CONTENT=$(cat .github/workflows/pull_request_template.md)
-
-          # Normalize content: strip newlines, leading and trailing whitespaces
-          NORMALIZED_PR=$(echo "$PR_DESCRIPTION" | tr -d '\n' | tr -d ' ' | tr -d '\t')
-          NORMALIZED_TEMPLATE=$(echo "$TEMPLATE_CONTENT" | tr -d '\n' | tr -d ' ' | tr -d '\t')
-
-          if [ "$NORMALIZED_PR" == "$NORMALIZED_TEMPLATE" ]; then
-            echo "ERROR: PR description is identical to the template."
-            exit 1
-          fi
+          TEMPLATE_CONTENT=$(cat .github/workflows/template.md)
+          chmod +x .github/workflows/compare_contents.sh
+          .github/workflows/compare_contents.sh "$PR_DESCRIPTION" "$TEMPLATE_CONTENT"
