@@ -35,11 +35,14 @@ jobs:
   
       - name: Debugging - Print contents
         run: |
-          if diff -q /tmp/pr_description.txt /tmp/template_content.txt >/dev/null; then
-            echo "ERROR: PR description is identical to the template"
-            exit 1
+          PR_CONTENT=$(cat /tmp/pr_description.txt)
+          TEMPLATE_CONTENT=$(cat /tmp/template_content.txt)
+
+          if [ "$PR_CONTENT" == "$TEMPLATE_CONTENT" ]; then
+              echo "ERROR: PR description is identical to the template"
+              exit 1
           else
-            echo "Files are different"
+              echo "Contents are different"
           fi
   
       
