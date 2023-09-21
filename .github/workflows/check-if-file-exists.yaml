@@ -46,5 +46,7 @@ jobs:
           else
               echo "Contents are different"
           fi
-  
+      - name: Display differences using diff
+        run: |
+          diff /tmp/pr_description.txt /tmp/template_content.txt || true
       
