@@ -25,33 +25,17 @@ jobs:
       - name: Check for updated CHANGELOG.md using git
         id: check-changelog
         run: |
-          if git diff --name-only origin/${{ github.base_ref }} | grep -q "^CHANGELOG.md$"; then
-            echo "CHANGELOG.md has been updated."
-            echo "::set-output name=check_commit::true"
-          else
-            echo "ERROR: CHANGELOG.md has not been updated."
-            echo "::set-output name=check_commit::false"
-          fi
-      - name: Extract changelog info
-        if: steps.check-changelog.outputs.check_commit == 'false'
-        id: extract-changelog
-        run: |
-          PR_DESCRIPTION="${{ github.event.pull_request.body }}"
-          TEMPLATE_CONTENT=$(cat .github/workflows/pull_request_template.md)
-          
-          # Write to temporary files
-          echo "$PR_DESCRIPTION" > /tmp/pr_desc.txt
-          echo "$TEMPLATE_CONTENT" > /tmp/template_content.txt
-          
-          # Use diff to compare, ignoring whitespace and blank lines
-          DIFF_OUTPUT=$(diff -wB /tmp/pr_desc.txt /tmp/template_content.txt)
+          echo "${{ github.event.pull_request.body }}" > /tmp/pr_description.txt
 
-          # Check diff output
-          if [ -z "$DIFF_OUTPUT" ]; then
-              echo "PR description is identical to pull_request_template.md"
-              exit 1
+      - name: Save template content
+        run: |
+          cat .github/pull_request_template.md > /tmp/template_content.txt
+  
+      - name: Compare PR description and template
+        run: |
+          if diff -wB /tmp/pr_description.txt /tmp/template_content.txt; then
+            echo "PR description and template are different"
           else
-              echo "PR description differs from pull_request_template.md"
-              echo "Differences:"
-              echo "$DIFF_OUTPUT"
+            echo "ERROR: PR description is identical to the template"
+            exit 1
           fi
