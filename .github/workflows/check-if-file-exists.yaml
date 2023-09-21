@@ -1,51 +1,25 @@
-name: Test
+name: PR Content Check
 on:
-  push:
-    branches:
-      - v2.x/staging
   pull_request:
     types: [opened, reopened, synchronize]
 
 jobs:
-  
-
-  update-changelog:
-    if: github.event_name == 'pull_request'
+  compare-contents:
     runs-on: ubuntu-latest
-    outputs:
-      was_updated: ${{ steps.check-change.outputs.change_detected }}
-      check_commit: ${{ steps.check-changelog.outputs.check_commit }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-        with:
-          ref: ${{ github.head_ref }}
-          fetch-depth: 0
 
-      - name: Check for updated CHANGELOG.md using git
-        id: check-changelog
+      - name: Compare PR description to template
         run: |
           PR_DESCRIPTION="${{ github.event.pull_request.body }}"
-          echo "$PR_DESCRIPTION" > /tmp/pr_description.txt
-  
-      - name: Store template content
-        run: |
           TEMPLATE_CONTENT=$(cat .github/workflows/pull_request_template.md)
-          echo "$TEMPLATE_CONTENT" > /tmp/template_content.txt
-  
-      - name: Debugging - Print contents
-        run: |
 
-          CLEAN_PR=$(cat /tmp/pr_description.txt | tr -cd '[:alnum:]')
-          CLEAN_TEMPLATE=$(cat /tmp/template_content.txt | tr -cd '[:alnum:]')
-          
-          if [ "$CLEAN_PR" == "$CLEAN_TEMPLATE" ]; then
-            echo "ERROR: Cleaned PR description is identical to the cleaned template"
+          # Normalize content: strip newlines, leading and trailing whitespaces
+          NORMALIZED_PR=$(echo "$PR_DESCRIPTION" | tr -d '\n' | tr -d ' ' | tr -d '\t')
+          NORMALIZED_TEMPLATE=$(echo "$TEMPLATE_CONTENT" | tr -d '\n' | tr -d ' ' | tr -d '\t')
+
+          if [ "$NORMALIZED_PR" == "$NORMALIZED_TEMPLATE" ]; then
+            echo "ERROR: PR description is identical to the template."
             exit 1
-          else
-            echo "Cleaned contents are different"
           fi
-      - name: Display differences using diff
-        run: |
-          diff /tmp/pr_description.txt /tmp/template_content.txt || true
-      
