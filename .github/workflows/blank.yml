@@ -41,11 +41,13 @@ jobs:
           # check if PR description is identical to template.md
           TEMPLATE_CONTENT=$(cat .github/workflows/pull_request_template.md)
           echo "$TEMPLATE_CONTENT" > /tmp/template_content.txt
-          if ! diff -wB /tmp/pr_description.txt /tmp/template_content.txt > /dev/null; then
+          if diff -wB /tmp/pr_description.txt /tmp/template_content.txt; then
+            echo "PR description and template are different"
+          else
             echo "ERROR: PR description is identical to the template"
             exit 1
           fi
-          # Check if "changelog:" exists in PR description
+          #if "changelog:" exists in PR description
           if echo "$PR_DESCRIPTION" | grep -q "VERSION:" && echo "$PR_DESCRIPTION" | grep -q "CHANGELOG:"; then
             # Extract content after "changelog:"
             CHANGELOG_TEXT=$(echo $PR_DESCRIPTION | sed -n 's/.*CHANGELOG: \(.*\)/\1/p')
