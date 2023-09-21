@@ -36,7 +36,7 @@ jobs:
         if: steps.check-changelog.outputs.check_commit == 'false'
         id: extract-changelog
         run: |
-          PR_DESCRIPTION=${{ github.event.pull_request.body }}
+          PR_DESCRIPTION="${{ github.event.pull_request.body }}"
           echo "$PR_DESCRIPTION" > /tmp/pr_description.txt
           # check if PR description is identical to template.md
           TEMPLATE_CONTENT=$(cat .github/workflows/pull_request_template.md)
