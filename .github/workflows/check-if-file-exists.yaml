@@ -37,17 +37,21 @@ jobs:
         id: extract-changelog
         run: |
           PR_DESCRIPTION="${{ github.event.pull_request.body }}"
-          PR_DESCRIPTION_CLEAN=$(echo "$PR_DESCRIPTION" | tr -d '[:space:]')
-          # check if PR description is identical to template.md
           TEMPLATE_CONTENT=$(cat .github/workflows/pull_request_template.md)
-          TEMPLATE_CONTENT_CLEAN=$(echo "$TEMPLATE_CONTENT" | tr -d '[:space:]')
-          if [ "$TEMPLATE_CONTENT_CLEAN" == "$PR_DESCRIPTION_CLEAN" ]; then
-            echo "PR description is identical to pull_request_template.md"
-            exit 1
+          
+          # Write to temporary files
+          echo "$PR_DESCRIPTION" > /tmp/pr_desc.txt
+          echo "$TEMPLATE_CONTENT" > /tmp/template_content.txt
+          
+          # Use diff to compare, ignoring whitespace and blank lines
+          DIFF_OUTPUT=$(diff -wB /tmp/pr_desc.txt /tmp/template_content.txt)
+
+          # Check diff output
+          if [ -z "$DIFF_OUTPUT" ]; then
+              echo "PR description is identical to pull_request_template.md"
+              exit 1
           else
-            # For debugging purposes, show where they differ
-            echo "$PR_DESCRIPTION_CLEAN" > pr_desc.txt
-            echo "$TEMPLATE_CONTENT_CLEAN" > template_content.txt
-            echo "There is a difference"
-            diff pr_desc.txt template_content.txt
+              echo "PR description differs from pull_request_template.md"
+              echo "Differences:"
+              echo "$DIFF_OUTPUT"
           fi
