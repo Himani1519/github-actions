@@ -36,13 +36,11 @@ jobs:
         if: steps.check-changelog.outputs.check_commit == 'false'
         id: extract-changelog
         run: |
-          PR_DESCRIPTION="${{ github.event.pull_request.body }}"
-          PR_DESCRIPTION_CLEAN=$(echo "$PR_DESCRIPTION" | tr -d '[:space:]')
+          echo "${{ github.event.pull_request.body }}" > /tmp/pr_description.txt
           # check if PR description is identical to template.md
-          TEMPLATE_CONTENT=$(cat .github/workflows/pull_request_template.md)
-          TEMPLATE_CONTENT_CLEAN=$(echo "$TEMPLATE_CONTENT" | tr -d '[:space:]')
-          if [ "$TEMPLATE_CONTENT_CLEAN" == "$PR_DESCRIPTION_CLEAN" ]; then
-            echo "PR description is identical to pull_request_template.md"
+          cat .github/workflows/pull_request_template.md > /tmp/template_content.txt
+          if ! diff -wB /tmp/pr_description.txt /tmp/template_content.txt > /dev/null; then
+            echo "ERROR: PR description is identical to the template"
             exit 1
           fi
           # Check if "changelog:" exists in PR description
