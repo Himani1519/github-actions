@@ -1,1 +1,47 @@
+name: Build
+on:
+  push:
+    branches:
+      - v2.x/staging
+  pull_request:
+    types: [opened, reopened, synchronize]
 
+jobs:
+  
+
+  update-changelog:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    outputs:
+      was_updated: ${{ steps.check-change.outputs.change_detected }}
+      check_commit: ${{ steps.check-changelog.outputs.check_commit }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+
+      - name: Check for updated CHANGELOG.md using git
+        id: check-changelog
+        run: |
+          if git diff --name-only origin/${{ github.base_ref }} | grep -q "^CHANGELOG.md$"; then
+            echo "CHANGELOG.md has been updated."
+            echo "::set-output name=check_commit::true"
+          else
+            echo "ERROR: CHANGELOG.md has not been updated."
+            echo "::set-output name=check_commit::false"
+          fi
+      - name: Extract changelog info
+        if: steps.check-changelog.outputs.check_commit == 'false'
+        id: extract-changelog
+        run: |
+          PR_DESCRIPTION="${{ github.event.pull_request.body }}"
+          PR_DESCRIPTION_CLEAN=$(echo "$PR_DESCRIPTION" | tr -d '[:space:]')
+          # check if PR description is identical to template.md
+          TEMPLATE_CONTENT=$(cat .github/workflows/pull_request_template.md)
+          TEMPLATE_CONTENT_CLEAN=$(echo "$TEMPLATE_CONTENT" | tr -d '[:space:]')
+          if [ "$TEMPLATE_CONTENT_CLEAN" == "$PR_DESCRIPTION_CLEAN" ]; then
+            echo "PR description is identical to pull_request_template.md"
+            exit 1
+          fi
