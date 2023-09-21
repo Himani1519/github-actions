@@ -41,6 +41,8 @@ jobs:
           # check if PR description is identical to template.md
           TEMPLATE_CONTENT=$(cat .github/workflows/pull_request_template.md)
           TEMPLATE_CONTENT_CLEAN=$(echo "$TEMPLATE_CONTENT" | tr -d '[:space:]')
+          echo "This is template content $TEMPLATE_CONTENT_CLEAN"
+          echo "This is PR Description $PR_DESCRIPTION_CLEAN"
           if [ "$TEMPLATE_CONTENT_CLEAN" == "$PR_DESCRIPTION_CLEAN" ]; then
             echo "PR description is identical to pull_request_template.md"
             exit 1
