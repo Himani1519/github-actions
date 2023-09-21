@@ -1,4 +1,4 @@
-name: Build
+name: Test
 on:
   push:
     branches:
@@ -43,7 +43,7 @@ jobs:
           TEMPLATE_CONTENT_CLEAN=$(echo "$TEMPLATE_CONTENT" | tr -d '[:space:]')
           echo "This is template content $TEMPLATE_CONTENT_CLEAN"
           echo "This is PR Description $PR_DESCRIPTION_CLEAN"
-          if [ "$TEMPLATE_CONTENT_CLEAN" == "$PR_DESCRIPTION_CLEAN" ]; then
+          if [ "$PR_DESCRIPTION" == "$TEMPLATE_CONTENT" ]; then
             echo "PR description is identical to pull_request_template.md"
             exit 1
           fi
