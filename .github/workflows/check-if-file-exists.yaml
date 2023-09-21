@@ -35,16 +35,15 @@ jobs:
   
       - name: Debugging - Print contents
         run: |
-          PR_CONTENT=$(cat /tmp/pr_description.txt)
-          TEMPLATE_CONTENT=$(cat /tmp/template_content.txt)
-          echo "...........$PR_CONTENT"
-          echo "...........$TEMPLATE_CONTENT"
 
-          if [ "$PR_CONTENT" == "$TEMPLATE_CONTENT" ]; then
-              echo "ERROR: PR description is identical to the template"
-              exit 1
+          CLEAN_PR=$(cat /tmp/pr_description.txt | tr -cd '[:alnum:]')
+          CLEAN_TEMPLATE=$(cat /tmp/template_content.txt | tr -cd '[:alnum:]')
+          
+          if [ "$CLEAN_PR" == "$CLEAN_TEMPLATE" ]; then
+            echo "ERROR: Cleaned PR description is identical to the cleaned template"
+            exit 1
           else
-              echo "Contents are different"
+            echo "Cleaned contents are different"
           fi
       - name: Display differences using diff
         run: |
