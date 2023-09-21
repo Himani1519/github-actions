@@ -1,18 +1,35 @@
-name: PR Content Check
+name: Check PR Description
 on:
   pull_request:
-    types: [opened, reopened, synchronize]
+    types: [opened, synchronize, reopened]
 
 jobs:
-  compare-contents:
+  check-pr-description:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      - name: Compare PR description to template
-        run: |
-          PR_DESCRIPTION="${{ github.event.pull_request.body }}"
-          TEMPLATE_CONTENT=$(cat .github/workflows/pull_request_template.md)
-          chmod +x .github/workflows/compare_contents.sh
-          .github/workflows/compare_contents.sh "$PR_DESCRIPTION" "$TEMPLATE_CONTENT"
+    - name: Compare PR Description to template.md
+      run: |
+        # Function to normalize content
+        normalize() {
+          echo "$1" | tr -d '\n' | tr -d ' ' | tr -d '\t'
+        }
+
+        PR_DESCRIPTION="${{ github.event.pull_request.body }}"
+        TEMPLATE_CONTENT=$(cat .github/workflows/pull_request_template.md)
+
+        NORMALIZED_PR=$(normalize "$PR_DESCRIPTION")
+        NORMALIZED_TEMPLATE=$(normalize "$TEMPLATE_CONTENT")
+
+        echo "----- Normalized PR -----"
+        echo "$NORMALIZED_PR"
+        echo "----- Normalized Template -----"
+        echo "$NORMALIZED_TEMPLATE"
+
+        # Fail the job if contents are the same
+        if [ "$NORMALIZED_PR" == "$NORMALIZED_TEMPLATE" ]; then
+          echo "ERROR: PR description is identical to the template."
+          exit 1
+        fi
