@@ -31,6 +31,8 @@ jobs:
           echo ".github/pull_request_template.md > /tmp/template_content.txt"
       
           # Using diff to compare files. If they're the same, then we output an error.
+          echo "PR............... /tmp/pr_description.txt"
+          echo "template     /tmp/template_content.txt"
           if diff -q /tmp/pr_description.txt /tmp/template_content.txt > /dev/null; then
             echo "ERROR: PR description is identical to the template"
             exit 1
