@@ -1,4 +1,4 @@
-name: Build Core
+name: Build
 on:
   push:
     branches:
@@ -37,19 +37,23 @@ jobs:
         id: extract-changelog
         run: |
           PR_DESCRIPTION="${{ github.event.pull_request.body }}"
+          echo "$PR_DESCRIPTION" > /tmp/pr_description.txt
           # check if PR description is identical to template.md
-          TEMPLATE_CONTENT=$(cat .github/pull_request_template.md)
-          if [ "$PR_DESCRIPTION" == "$TEMPLATE_CONTENT" ]; then
-            echo "PR description is identical to pull_request_template.md"
+          TEMPLATE_CONTENT=$(cat .github/workflows/pull_request_template.md)
+          echo "$TEMPLATE_CONTENT" > /tmp/template_content.txt
+          if diff -wB /tmp/pr_description.txt /tmp/template_content.txt; then
+            echo "PR description and template are different"
+          else
+            echo "ERROR: PR description is identical to the template"
             exit 1
           fi
-          # Check if "changelog:" exists in PR description
+          #if "changelog:" exists in PR description
           if echo "$PR_DESCRIPTION" | grep -q "VERSION:" && echo "$PR_DESCRIPTION" | grep -q "CHANGELOG:"; then
-            # Extract text after "changelog:"
-            CHANGELOG_TEXT=$(echo $PR_DESCRIPTION | sed -n 's/.*CHANGELOG: \(.*\)/\1/p' | tr -d '[:space:]')
-            # Check if extracted CHANGELOG_TEXT is empty
-            if [ -z "$CHANGELOG_TEXT" ]; then
-              echo "The changelog information after 'CHANGELOG:' cannot be empty."
+            # Extract content after "changelog:"
+            CHANGELOG_TEXT=$(echo $PR_DESCRIPTION | sed -n 's/.*CHANGELOG: \(.*\)/\1/p')
+            # Check if extracted CHANGELOG_TEXT is empty or identical to the template content
+            if [ -z "$CHANGELOG_TEXT" ] || [ ! diff -wB /tmp/pr_description.txt /tmp/template_content.txt > /dev/null ]; then
+              echo "The changelog information after 'CHANGELOG:' cannot be empty or identical to pull_request_template.md."
               exit 1
             fi
             # Extract VERSION: from PR description
