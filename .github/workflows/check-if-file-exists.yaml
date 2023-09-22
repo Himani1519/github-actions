@@ -6,32 +6,6 @@ on:
   pull_request:
     types: [opened, reopened, synchronize]
 
-  workflow_dispatch:
-    inputs: 
-      ZLUX_APP_MANAGER:
-        description: 'zlux-app-manager PR number'
-        required: false
-      ZLUX_APP_SERVER:
-        description: 'zlux-app-server PR number'
-        required: false
-      ZLUX_BUILD:
-        description: 'zlux-build PR number'
-        required: false
-      ZLUX_PLATFORM:
-        description: 'zlux-platform PR number'
-        required: false
-        
-      ZLUX_SERVER_FRAMEWORK:
-        description: 'zlux-server-framework PR number'
-        required: false
-      ZLUX_SHARED:
-        description: 'zlux-shared PR number'
-        required: false
-      DEFAULT_BRANCH:
-        description: 'please enter the default branch you would like to build with, default will be v2.x/staging'
-        required: false
-        default: 'v2.x/staging'
-
 jobs:
   update-changelog:
     if: github.event_name == 'pull_request'
