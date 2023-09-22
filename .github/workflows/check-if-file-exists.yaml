@@ -35,7 +35,7 @@ jobs:
         id: extract-changelog
         run: |
           PR_DESCRIPTION="${{ github.event.pull_request.body }}"
-          PR_DESCRIPTION_CLEAN=$(echo "$PR_DESCRIPTION" | tr -d '[:space:]')
+          PR_DESCRIPTION_CLEAN=$(echo "$PR_DESCRIPTION" | tr -d '[:space:]"')
           # check if PR description is identical to template.md
           TEMPLATE_CONTENT=$(cat .github/pull_request_template.md)
           TEMPLATE_CONTENT_CLEAN=$(echo "$TEMPLATE_CONTENT" | tr -d '[:space:]"')
