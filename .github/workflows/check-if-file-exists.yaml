@@ -34,13 +34,13 @@ jobs:
         # if: steps.check-changelog.outputs.check_commit == 'false'
         id: extract-changelog
         run: |
-         sudo apt-get install jq
-         PR_BODY=$(echo '${{ github.event.pull_request.body }}' | jq -R -s -c .)
-         echo "Processed PR Body: $PR_BODY"
-         echo $PR_BODY > /tmp/pr_description.txt
+         PR_DESCRIPTION="${{ github.event.pull_request.body }}"
+         echo "$PR_DESCRIPTION" > /tmp/pr_description.txt
+         echo "PR DESCRIPTION saved to /tmp/pr_description.txt."
          cat /tmp/pr_description.txt
+        
          # Save the template content to a file
-         TEMPLATE_CONTENT="$(cat .github/pull_request_template.md)"
+         TEMPLATE_CONTENT=$(.github/pull_request_template.md)
          echo "$TEMPLATE_CONTENT" > /tmp/template_content.txt
          echo "Template content saved to /tmp/template_content.txt."
          cat /tmp/template_content.txt
@@ -49,7 +49,9 @@ jobs:
          if diff -wB /tmp/pr_description.txt /tmp/template_content.txt > /dev/null; then
              echo "ERROR: PR description is identical to the template."
              exit 1
-          fi
+         else
+             echo "PR description and template are different."
+         fi
           # Check if "changelog:" exists in PR description
           if echo "$PR_DESCRIPTION" | grep -q "VERSION:" && echo "$PR_DESCRIPTION" | grep -q "CHANGELOG:"; then
             # Extract content after "changelog:"
