@@ -30,7 +30,7 @@ jobs:
          cat /tmp/pr_description.txt
         
          # Save the template content to a file
-         TEMPLATE_CONTENT="$(cat .github/pull_request_template.md)"
+         TEMPLATE_CONTENT=$(sed 's/"//g' .github/pull_request_template.md)
          echo "$TEMPLATE_CONTENT" > /tmp/template_content.txt
          echo "Template content saved to /tmp/template_content.txt."
          cat /tmp/template_content.txt
