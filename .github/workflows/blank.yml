@@ -24,14 +24,15 @@ jobs:
         # if: steps.check-changelog.outputs.check_commit == 'false'
         id: extract-changelog
         run: |
-         PR_DESCRIPTION='${{ github.event.pull_request.body }}'
+         PR_DESCRIPTION="${{ github.event.pull_request.body }}"
          echo "$PR_DESCRIPTION" > /tmp/pr_description.txt
          echo "PR DESCRIPTION saved to /tmp/pr_description.txt."
         
          # Save the template content to a file
-         TEMPLATE_CONTENT=$(cat .github/pull_request_template.md)
+         TEMPLATE_CONTENT="$(cat .github/pull_request_template.md)"
          echo "$TEMPLATE_CONTENT" > /tmp/template_content.txt
          echo "Template content saved to /tmp/template_content.txt."
+         cat /tmp/template_content.txt
         
          # Use diff to compare the two files
          if diff -wB /tmp/pr_description.txt /tmp/template_content.txt > /dev/null; then
