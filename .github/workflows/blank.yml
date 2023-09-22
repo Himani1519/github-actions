@@ -24,17 +24,21 @@ jobs:
         # if: steps.check-changelog.outputs.check_commit == 'false'
         id: extract-changelog
         run: |
-          # Saving PR description to a temporary file, preserving special characters
-          printf "%s" "${{ github.event.pull_request.body }}" > /tmp/pr_description.txt
-      
+          # Encode PR description to base64 and then decode it to a temporary file
+          echo "${{ github.event.pull_request.body }}" | base64 -d > /tmp/pr_description.txt
           # Saving template content to another temporary file
           cat .github/pull_request_template.md > /tmp/template_content.txt
+          echo ".github/pull_request_template.md > /tmp/template_content.txt"
       
           # Using diff to compare files. If they're the same, then we output an error.
           if diff -q /tmp/pr_description.txt /tmp/template_content.txt > /dev/null; then
             echo "ERROR: PR description is identical to the template"
             exit 1
           fi
+      
+
+
+
 
 
 
