@@ -35,9 +35,10 @@ jobs:
         id: extract-changelog
         run: |
           PR_DESCRIPTION='${{ github.event.pull_request.body }}'
-          echo "PR DESCRIPTION...............$PR_DESCRIPTION_CLEAN"
+          echo "PR DESCRIPTION...............$PR_DESCRIPTION"
           # check if PR description is identical to template.md
           TEMPLATE_CONTENT=$(cat .github/pull_request_template.md)
+          echo "template .....$TEMPLATE_CONTENT"
           if [ "$TEMPLATE_CONTENT" == "$PR_DESCRIPTION" ]; then
             echo "PR description is identical to pull_request_template.md"
             exit 1
