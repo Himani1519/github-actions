@@ -25,7 +25,7 @@ jobs:
         id: extract-changelog
         run: |
           # Encode PR description to base64 and then decode it to a temporary file
-          echo "${{ github.event.pull_request.body }}" | base64 -d > /tmp/pr_description.txt
+          echo "${{ github.event.pull_request.body }}" | base64 | base64 -d > /tmp/pr_description.txt
           # Saving template content to another temporary file
           cat .github/pull_request_template.md > /tmp/template_content.txt
           echo ".github/pull_request_template.md > /tmp/template_content.txt"
