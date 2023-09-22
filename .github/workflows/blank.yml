@@ -1,1 +1,38 @@
+name: Build Test
+on:
+  push:
+    branches:
+      - v2.x/staging
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+jobs:
+  update-changelog:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    outputs:
+      was_updated: ${{ steps.check-change.outputs.change_detected }}
+      check_commit: ${{ steps.check-changelog.outputs.check_commit }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+          
+      - name: Extract changelog info
+        # if: steps.check-changelog.outputs.check_commit == 'false'
+        id: extract-changelog
+        run: |
+          # Escaping special characters in PR description
+          PR_DESCRIPTION_ESCAPED=$(echo "${{ github.event.pull_request.body }}" | sed 's/"/\\"/g')
+      
+          # Escaping special characters in template.md content
+          TEMPLATE_CONTENT_ESCAPED=$(cat .github/pull_request_template.md | sed 's/"/\\"/g')
+      
+          # Compare the escaped content
+          if [ "$PR_DESCRIPTION_ESCAPED" == "$TEMPLATE_CONTENT_ESCAPED" ]; then
+            echo "ERROR: PR description is identical to the template"
+            exit 1
+          fi
 
