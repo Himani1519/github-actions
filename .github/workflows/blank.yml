@@ -26,11 +26,11 @@ jobs:
         run: |
     
           # Escaping special characters in PR description
-          PR_DESCRIPTION_ESCAPED=$(echo "${{ github.event.pull_request.body }}")
+          PR_DESCRIPTION_ESCAPED=$(echo "${{ github.event.pull_request.body }}" |  sed 's/"/\\"/g')
           echo "PR Description.....$PR_DESCRIPTION_ESCAPED"
       
           # Escaping special characters in template.md content
-          TEMPLATE_CONTENT_ESCAPED=$(cat .github/pull_request_template.md | sed 's/"/\\"/g')
+          TEMPLATE_CONTENT_ESCAPED=$(cat .github/pull_request_template.md)
           echo template Description.....$TEMPLATE_CONTENT_ESCAPED"
       
           # Compare the escaped content
