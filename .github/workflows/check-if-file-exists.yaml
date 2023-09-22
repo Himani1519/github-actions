@@ -34,8 +34,8 @@ jobs:
         # if: steps.check-changelog.outputs.check_commit == 'false'
         id: extract-changelog
         run: |
-         PR_DESCRIPTION='${{ github.event.pull_request.body }}'
-         echo "$PR_DESCRIPTION" > /tmp/pr_description.txt
+         PR_DESCRIPTION="${{ github.event.pull_request.body }}"
+         printf "%s" "$PR_DESCRIPTION" > /tmp/pr_description.txt
          echo "PR DESCRIPTION saved to /tmp/pr_description.txt."
         
          # Save the template content to a file
