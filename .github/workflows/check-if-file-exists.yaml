@@ -38,7 +38,7 @@ jobs:
           PR_DESCRIPTION_CLEAN=$(echo "$PR_DESCRIPTION" | tr -d '[:space:]')
           # check if PR description is identical to template.md
           TEMPLATE_CONTENT=$(cat .github/pull_request_template.md)
-          TEMPLATE_CONTENT_CLEAN=$(echo "$TEMPLATE_CONTENT" | tr -d '[:space:]')
+          TEMPLATE_CONTENT_CLEAN=$(echo "$TEMPLATE_CONTENT" | tr -d '[:space:]"')
           echo "Template.......$TEMPLATE_CONTENT_CLEAN"
           echo "PR.......$PR_DESCRIPTION_CLEAN"
           if [ "$TEMPLATE_CONTENT_CLEAN" == "$PR_DESCRIPTION_CLEAN" ]; then
