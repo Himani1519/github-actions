@@ -24,19 +24,21 @@ jobs:
         # if: steps.check-changelog.outputs.check_commit == 'false'
         id: extract-changelog
         run: |
-    
-          # Escaping special characters in PR description
-          PR_DESCRIPTION_ESCAPED=$(echo "${{ github.event.pull_request.body }}" |  sed 's/"/\\"/g')
-          echo "PR Description.....$PR_DESCRIPTION_ESCAPED"
+          # Saving PR description to a temporary file, preserving special characters
+          printf "%s" "${{ github.event.pull_request.body }}" > /tmp/pr_description.txt
       
-          # Escaping special characters in template.md content
-          TEMPLATE_CONTENT_ESCAPED=$(cat .github/pull_request_template.md)
-          echo template Description.....$TEMPLATE_CONTENT_ESCAPED"
+          # Saving template content to another temporary file
+          cat .github/pull_request_template.md > /tmp/template_content.txt
       
-          # Compare the escaped content
-          if [ "$PR_DESCRIPTION_ESCAPED" == "$TEMPLATE_CONTENT_ESCAPED" ]; then
+          # Using diff to compare files. If they're the same, then we output an error.
+          if diff -q /tmp/pr_description.txt /tmp/template_content.txt > /dev/null; then
             echo "ERROR: PR description is identical to the template"
             exit 1
+          fi
+
+
+
+
 
 
 
