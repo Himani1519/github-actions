@@ -1,4 +1,4 @@
-name: Build Core
+name: Build TEST
 on:
   push:
     branches:
@@ -36,6 +36,7 @@ jobs:
         if: steps.check-changelog.outputs.check_commit == 'false'
         id: extract-changelog
         run: |
+          set -eux
           PR_DESCRIPTION="${{ github.event.pull_request.body }}"
           echo "pr description is ....$PR_DESCRIPTION"
           # Check if "changelog:" exists in PR description
