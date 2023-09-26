@@ -1,6 +1,10 @@
 # Zlux App Server Changelog
 
 All notable changes to the Zlux App Server package will be documented in this file.
+    
+## v2.12.0
+- enhancement:newversionsofcomponentscanchangethelocationoftheirplugins,astheapp-serverwillnowre-inspectthepluginlocationsoneachstartup.##TestingTotestthisyoucanreorganizeacomponentyouhavetochangethelocationofapluginwithin.Intheexamplebelow,ipreviouslyhadthepluginat'.',andmoveditto'newlocation'.Iinspectedthatthecodeworkedbyreadingthejsonatthebottomafterazowerestart,anditcorrectlyhad'newlocation'.![location-change](https://github.com/zowe/zlux-app-server/assets/30730276/1980f7f7-b820-4b6f-b31a-952be734e8da) (#8)
+
 
 ## v2.11.0
 - This action making a CHANGELOG note via special syntax from the GitHub PR commit message, like it could automatically update CHANGELOG.md with the message. First job checks if PR body has changelog note or not if it's not there then it asked them to add it and second job is to check if changelog note has been added in changelog.md file or not.(#278)
