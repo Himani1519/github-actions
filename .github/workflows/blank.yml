@@ -1,37 +1,28 @@
-name: Lint TypeScript Code
+name: Lint TypeScript
 
 on:
   push:
     paths:
-      - '**.ts' # Run this action on push to any TypeScript file
+    - '**.ts'
   pull_request:
     paths:
-      - '**.ts' # Also, run when a PR is opened/updated which changes a TypeScript file
+    - '**.ts'
 
 jobs:
   lint:
-    name: Linting
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-      
-    - name: Setup Node.js
+
+    - name: Set up Node.js
       uses: actions/setup-node@v2
       with:
-        node-version: 14 # You can specify your desired Node.js version here.
+        node-version: '14'  # Adjust this based on your project's requirements
 
-    - name: Cache Node modules
-      uses: actions/cache@v3
-      with:
-        path: ~/.npm
-        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-node-
-          
     - name: Install dependencies
       run: npm ci
-      
-    - name: Run ESLint
-      run: npx eslint '**/*.ts' --quiet
+
+    - name: Run ESLint on TypeScript files
+      run: npx eslint '**/*.ts' --max-warnings=0
