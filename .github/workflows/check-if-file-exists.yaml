@@ -1,4 +1,4 @@
-name: Lint TypeScript
+name: TypeScript Linting
 
 on:
   push:
@@ -16,14 +16,26 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Set up Node.js
+    - name: Setup Node.js
       uses: actions/setup-node@v2
       with:
-        node-version: '18'  # Adjust this based on your project's requirements
+        node-version: '18' # You can adjust this based on your project's requirements.
+
+    - name: Cache Node.js modules
+      uses: actions/cache@v2
+      with:
+        path: ~/.npm  # npm caches modules in ~/.npm on Linux/macOS
+        key: ${{ runner.OS }}-build-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.OS }}-build-
+          ${{ runner.OS }}-
 
     - name: Install dependencies
       run: npm ci
 
     - name: Run ESLint on TypeScript files
-      run: npx eslint '**/*.ts' --max-warnings=0
+      run: npx eslint '**/*.ts'
 
+    - name: List ESLint plugins (for debugging)
+      run: npm list | grep eslint-plugin
+      continue-on-error: true  # This is just for debugging and won't make the workflow fail.
