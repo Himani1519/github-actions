@@ -54,14 +54,14 @@ jobs:
               echo "PR description and template are different."
           fi
 
-          # Set PR_DESCRIPTION as output
-          echo "::set-output name=pr-description::$PR_DESCRIPTION"
+          # # Set PR_DESCRIPTION as output
+          # echo "::set-output name=pr-description::$PR_DESCRIPTION"
 
       - name: Extract changelog info
         # if: steps.check-changelog.outputs.check_commit == 'false'
         id: extract-changelog
         run: |
-          PR_DESCRIPTION="${{ steps.compare-with-template.outputs.pr-description }}"
+          PR_DESCRIPTION="${{ github.event.pull_request.body }}"
           
           # Check if "changelog:" exists in PR description
           if echo "$PR_DESCRIPTION" | grep -q "VERSION:" && echo "$PR_DESCRIPTION" | grep -q "CHANGELOG:"; then
