@@ -53,16 +53,13 @@ jobs:
           else
               echo "PR description and template are different."
           fi
-
-          # # Set PR_DESCRIPTION as output
-          # echo "::set-output name=pr-description::$PR_DESCRIPTION"
+          # Set PR_DESCRIPTION as an environment variable
+          echo "PR_DESCRIPTION=$PR_DESCRIPTION" >> $GITHUB_ENV
 
       - name: Extract changelog info
         # if: steps.check-changelog.outputs.check_commit == 'false'
         id: extract-changelog
         run: |
-          PR_DESCRIPTION="${{ github.event.pull_request.body }}"
-          
           # Check if "changelog:" exists in PR description
           if echo "$PR_DESCRIPTION" | grep -q "VERSION:" && echo "$PR_DESCRIPTION" | grep -q "CHANGELOG:"; then
             # Extract content after "changelog:"
@@ -74,7 +71,7 @@ jobs:
               echo "The changelog information after 'CHANGELOG:' cannot be empty or identical to pull_request_template.md."
               exit 1
             fi
-            
+      
             # Extract VERSION: from PR description
             VERSION=$(echo "$PR_DESCRIPTION" | grep -oP 'VERSION:\s*\Kv\d+\.\d+\.\d+')
             echo "Extracted changelog: $CHANGELOG_TEXT"
