@@ -54,6 +54,7 @@ jobs:
               echo "PR description and template are different."
           fi
           # Set PR_DESCRIPTION as output
+          echo " I am here .....$PR_DESCRIPTION" 
           echo "::set-output name=pr-description::$PR_DESCRIPTION"
 
       - name: Extract changelog info
