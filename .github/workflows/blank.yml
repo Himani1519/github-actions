@@ -60,6 +60,7 @@ jobs:
         # if: steps.check-changelog.outputs.check_commit == 'false'
         id: extract-changelog
         run: |
+          echo "hello ${{ steps.compare-with-template.outputs.pr-description }}"
           PR_DESCRIPTION="${{ steps.compare-with-template.outputs.pr-description }}"
           # Check if "changelog:" exists in PR description
           if echo "$PR_DESCRIPTION" | grep -q "VERSION:" && echo "$PR_DESCRIPTION" | grep -q "CHANGELOG:"; then
