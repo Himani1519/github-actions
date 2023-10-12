@@ -2,8 +2,7 @@
 
 All notable changes to the Zlux App Server package will be documented in this file.
     
-## v2.13.0
-- This is to test [BT]ls -lt[BT] the command. (#12)
+
 
     
 
