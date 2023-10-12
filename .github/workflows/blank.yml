@@ -34,9 +34,12 @@ jobs:
       #       echo "::set-output name=check_commit::false"
       #     fi
       - name: Extract and Compare PR description with template
+        env:
+           PR_DESCRIPTION: ${{ github.event.pull_request.body }}
         run: |
-          PR_DESCRIPTION="${{ github.event.pull_request.body }}"
-          node -e 'const prDesc = process.argv[1]; console.log(prDesc);' "$PR_DESCRIPTION"
+          # Safely print the PR description using Node.js
+          node -e 'const prDesc = process.env.PR_DESCRIPTION; console.log(prDesc);'
+      
           echo "$PR_DESCRIPTION" > /tmp/pr_description.txt
           echo "PR DESCRIPTION saved to /tmp/pr_description.txt."
             
