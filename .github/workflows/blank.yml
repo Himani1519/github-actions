@@ -36,8 +36,8 @@ jobs:
       - name: Compare PR description with template
         run: |
           PR_DESCRIPTION="${{ github.event.pull_request.body }}"
+          PR_DESCRIPTION=$(echo "$PR_DESCRIPTION" | sed "s/\`/[BT]/g")
           echo "$PR_DESCRIPTION" > /tmp/pr_description.txt
-          echo "PR DESCRIPTION saved to /tmp/pr_description.txt."
           cat /tmp/pr_description.txt
   
           # Save the template content to a file
@@ -57,15 +57,7 @@ jobs:
       - name: Extract changelog info
         run: |
           # Extract changelog info using Node.js
-          CHANGELOG_TEXT=$(node -e "
-          const prDescription = process.env.PR_DESCRIPTION;
-          const lines = prDescription.split('\n');
-          lines.forEach(line => {
-            if (line.startsWith('CHANGELOG: ')) {
-              console.log(line.substring('CHANGELOG: '.length));
-            }
-          });
-          ")
+          CHANGELOG_TEXT=$(echo $PR_DESCRIPTION | sed -n 's/.*CHANGELOG: \(.*\)/\1/p')
       
           # Check if extracted CHANGELOG_TEXT is empty or identical to the template content
           TEMPLATE_CONTENT=$(cat /tmp/template_content.txt)
