@@ -38,7 +38,7 @@ jobs:
         id: compare-with-template
         run: |
           PR_DESCRIPTION="${{ github.event.pull_request.body }}"
-          echo "$PR_DESCRIPTION" > /tmp/pr_description.txt
+          PR_DESCRIPTION=$(cat /tmp/pr_description.txt)
           echo "PR DESCRIPTION saved to /tmp/pr_description.txt."
           cat /tmp/pr_description.txt
             
