@@ -47,8 +47,9 @@ jobs:
           TEMPLATE_CONTENT=$(sed 's/"//g' .github/pull_request_template.md)
           echo "$TEMPLATE_CONTENT" > /tmp/template_content.txt
           echo "Template content saved to /tmp/template_content.txt."
+          cat /tmp/pr_description.txt
+          echo "---- TEMPLATE CONTENT ----"
           cat /tmp/template_content.txt
-      
           # Use diff to compare the two files
           if diff -wB /tmp/pr_description.txt /tmp/template_content.txt > /dev/null; then
             echo "ERROR: PR description is identical to the template."
