@@ -89,13 +89,13 @@ jobs:
       
       - name: Check PR body against changelog
         run: |         
+
+          # Convert backticks to single quotes
+          ESCAPED_CHANGELOG=$(echo "${{ steps.extract-changelog.outputs.changelog }}" | sed "s/\`/'/g")
           echo "Raw CHANGELOG Input: $ESCAPED_CHANGELOG"
           ESCAPED_CHANGELOG=$(echo "$ESCAPED_CHANGELOG" | sed "s/\`/'/g")
           echo "Transformed CHANGELOG Input: $ESCAPED_CHANGELOG"
           sed -i "/^## $VERSION/a - $ESCAPED_CHANGELOG (#${{ github.event.pull_request.number }})" CHANGELOG.md
-
-          # Convert backticks to single quotes
-          ESCAPED_CHANGELOG=$(echo "${{ steps.extract-changelog.outputs.changelog }}" | sed "s/\`/'/g")
           
           VERSION="${{ steps.extract-changelog.outputs.version }}"
           
