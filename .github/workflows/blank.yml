@@ -89,8 +89,8 @@ jobs:
       
       - name: Check PR body against changelog
         run: |         
-          # Escape backticks and single quotes
-          ESCAPED_CHANGELOG=$(echo "${{ steps.extract-changelog.outputs.changelog }}" | sed "s/\`/\\\\\`/g" | sed "s/'/\\\\'/g")
+          # Convert backticks to single quotes
+          ESCAPED_CHANGELOG=$(echo "${{ steps.extract-changelog.outputs.changelog }}" | sed "s/\`\([^`]*\)\`/'\1'/g")
           
           VERSION="${{ steps.extract-changelog.outputs.version }}"
           
@@ -111,6 +111,7 @@ jobs:
             git commit -s -m "Update changelog with PR #${{ github.event.pull_request.number }} description"
             git push
           fi
+
 
       - name: check for changes
         id: check-change
