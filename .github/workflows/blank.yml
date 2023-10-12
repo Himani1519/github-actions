@@ -42,7 +42,7 @@ jobs:
       
           SANITIZED_PR_DESCRIPTION=$(printf "%s" "$PR_BODY" | sed "s/\`/'/g")
           printf "%s" "$SANITIZED_PR_DESCRIPTION" > /tmp/pr_description.txt
-          
+      
           # Save the template content to a file
           TEMPLATE_CONTENT=$(sed 's/"//g' .github/pull_request_template.md)
           echo "$TEMPLATE_CONTENT" > /tmp/template_content.txt
@@ -51,17 +51,18 @@ jobs:
           cat /tmp/pr_description.txt
           echo "---- TEMPLATE CONTENT ----........................................................................."
           cat /tmp/template_content.txt
+      
           # Use diff to compare the two files
-          if diff /tmp/pr_description.txt /tmp/template_content.txt > /dev/null; then
+          
+          if diff -wB /tmp/pr_description.txt /tmp/template_content.txt > /dev/null; then
             echo "ERROR: PR description is identical to the template."
             exit 1
           else
             echo "PR description and template are different."
           fi
-      
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                
+    
       - name: Extract changelog info using Node.js
         id: extract-changelog
         run: |
