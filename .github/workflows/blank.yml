@@ -23,7 +23,7 @@ jobs:
           ref: ${{ github.head_ref }}
           fetch-depth: 0
 
-      # - name: Check for updated CHANGELOG.md using git
+      - name: Check for updated CHANGELOG.md using git
       #   id: check-changelog
       #   run: |
       #     if git diff --name-only origin/${{ github.base_ref }} | grep -q "^CHANGELOG.md$"; then
@@ -34,20 +34,18 @@ jobs:
       #       echo "::set-output name=check_commit::false"
       #     fi
       - name: Compare PR description with template
-        # if: steps.check-changelog.outputs.check_commit == 'false'
-        id: compare-with-template
         run: |
           PR_DESCRIPTION="${{ github.event.pull_request.body }}"
-          PR_DESCRIPTION=$(cat /tmp/pr_description.txt)
+          echo "$PR_DESCRIPTION" > /tmp/pr_description.txt
           echo "PR DESCRIPTION saved to /tmp/pr_description.txt."
           cat /tmp/pr_description.txt
-            
+  
           # Save the template content to a file
           TEMPLATE_CONTENT=$(sed 's/"//g' .github/pull_request_template.md)
           echo "$TEMPLATE_CONTENT" > /tmp/template_content.txt
           echo "Template content saved to /tmp/template_content.txt."
           cat /tmp/template_content.txt
-            
+  
           # Use diff to compare the two files
           if diff -wB /tmp/pr_description.txt /tmp/template_content.txt > /dev/null; then
             echo "ERROR: PR description is identical to the template."
@@ -55,32 +53,28 @@ jobs:
           else
             echo "PR description and template are different."
           fi
+  
       - name: Extract changelog info
-        # if: steps.check-changelog.outputs.check_commit == 'false'
-        id: extract-changelog
         run: |
           PR_DESCRIPTION=$(cat /tmp/pr_description.txt)
-          # Check if "changelog:" exists in PR description
-          if echo "$PR_DESCRIPTION" | grep -q "VERSION:" && echo "$PR_DESCRIPTION" | grep -q "CHANGELOG:"; then
-            # Extract content after "changelog:"
-           CHANGELOG_TEXT=$(node -e "
-              const prDescription = \`$PR_DESCRIPTION\`;
-              const lines = prDescription.split('\n');
-              
-              lines.forEach(line => {
-                if (line.startsWith('CHANGELOG: ')) {
-                  console.log(line.substring('CHANGELOG: '.length));
-                }
-              });
-              ")
-            
-            # Check if extracted CHANGELOG_TEXT is empty or identical to the template content
-            TEMPLATE_CONTENT=$(cat /tmp/template_content.txt)
-            if [ -z "$CHANGELOG_TEXT" ] || [ "$CHANGELOG_TEXT" == "$TEMPLATE_CONTENT" ]; then
-              echo "The changelog information after 'CHANGELOG:' cannot be empty or identical to pull_request_template.md."
-              exit 1
-            fi
-      
+          # Extract changelog info using Node.js
+          CHANGELOG_TEXT=$(node -e "
+          const prDescription = process.env.PR_DESCRIPTION;
+          const lines = prDescription.split('\n');
+          lines.forEach(line => {
+            if (line.startsWith('CHANGELOG: ')) {
+              console.log(line.substring('CHANGELOG: '.length));
+            }
+          });
+          ")
+  
+          # Check if extracted CHANGELOG_TEXT is empty or identical to the template content
+          TEMPLATE_CONTENT=$(cat /tmp/template_content.txt)
+          if [ -z "$CHANGELOG_TEXT" ] || [ "$CHANGELOG_TEXT" == "$TEMPLATE_CONTENT" ]; then
+            echo "The changelog information after 'CHANGELOG:' cannot be empty or identical to pull_request_template.md."
+            exit 1
+          fi
+        
             # Extract VERSION: from PR description
             VERSION=$(echo "$PR_DESCRIPTION" | grep -oP 'VERSION:\s*\Kv\d+\.\d+\.\d+')
             echo "Extracted changelog: $CHANGELOG_TEXT"
