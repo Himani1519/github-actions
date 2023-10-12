@@ -40,28 +40,24 @@ jobs:
           "https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}" | \
           jq -r .body)
       
-          SANITIZED_PR_DESCRIPTION=$(printf "%s" "$PR_BODY" | sed "s/\`/'/g")
-          printf "%s" "$SANITIZED_PR_DESCRIPTION" > /tmp/pr_description.txt
+          # Use Node.js to sanitize, compare, and output the result
+          SANITIZED_DESCRIPTION=$(node -e "console.log(process.argv[1].replace(/`/g, ''));" "$PR_BODY")
       
-          # Save the template content to a file and sanitize it the same way as PR description
-          TEMPLATE_CONTENT=$(sed 's/"//g' .github/pull_request_template.md | sed "s/\`/'/g")
-          printf "%s" "$TEMPLATE_CONTENT" > /tmp/template_content.txt
+          # Save the sanitized PR description for later steps
+          echo "$SANITIZED_DESCRIPTION" > /tmp/pr_description.txt
       
-          # Print both to the log for debugging
-          echo "---- PR DESCRIPTION ----"
-          cat /tmp/pr_description.txt
-          echo "------------------------"
-          echo "---- TEMPLATE CONTENT ----"
-          cat /tmp/template_content.txt
-          echo "---------------------------"
+          # Compare using diff
+          TEMPLATE_CONTENT=$(sed 's/"//g' .github/pull_request_template.md)
+          echo "$TEMPLATE_CONTENT" > /tmp/template_content.txt
       
-          # Use diff to compare the two files
-          if diff -wB /tmp/pr_description.txt /tmp/template_content.txt > /dev/null; then
-            echo "ERROR: PR description is identical to the template."
+          if diff /tmp/pr_description.txt /tmp/template_content.txt > /dev/null; then
+            echo "ERROR: Sanitized PR description is identical to the template."
             exit 1
           else
-            echo "PR description and template are different."
+            echo "Sanitized PR description and template are different."
           fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     
       - name: Extract changelog info using Node.js
