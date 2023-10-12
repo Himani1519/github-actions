@@ -36,6 +36,7 @@ jobs:
       - name: Extract and Compare PR description with template
         run: |
           PR_DESCRIPTION="${{ github.event.pull_request.body }}"
+          node -e 'const prDesc = process.argv[1]; console.log(prDesc);' "$PR_DESCRIPTION"
           echo "$PR_DESCRIPTION" > /tmp/pr_description.txt
           echo "PR DESCRIPTION saved to /tmp/pr_description.txt."
             
