@@ -83,7 +83,7 @@ jobs:
             VERSION=$(echo "$PR_DESCRIPTION" | grep -oP 'VERSION:\s*\Kv\d+\.\d+\.\d+')
       
             echo "Extracted changelog: $CHANGELOG_TEXT"
-            echo "::set-output name=changelog::$CHANGELOG_TEXT"
+            echo "::set-output name=changelog::$(echo "$CHANGELOG_TEXT" | base64)"
             echo "::set-output name=version::$VERSION"
             
           else
@@ -98,6 +98,9 @@ jobs:
         run: |         
           # Print the raw PR changelog description
           echo "Direct output: ${{ steps.extract-changelog.outputs.changelog }}"
+          ESCAPED_CHANGELOG=$(echo "${{ steps.extract-changelog.outputs.changelog }}" | base64 -d)
+          echo "$ESCAPED_CHANGELOG"
+
 
           # # Convert backticks to single quotes
           # ESCAPED_CHANGELOG=$(echo "${{ steps.extract-changelog.outputs.changelog }}" | sed "s/\`/'/g")
