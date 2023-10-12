@@ -33,24 +33,29 @@ jobs:
       #       echo "ERROR: CHANGELOG.md has not been updated."
       #       echo "::set-output name=check_commit::false"
       #     fi
-      - name: Compare PR description with template
+      - name: Extract and Compare PR description with template
         run: |
           PR_BODY=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
           -H "Accept: application/vnd.github.v3+json" \
           "https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}" | \
           jq -r .body)
+          
+          echo "$PR_BODY" > /tmp/original_pr.txt
       
-          # Use Node.js to sanitize, compare, and output the result
-          SANITIZED_DESCRIPTION=$(node -e "console.log(process.argv[1].replace(/`/g, ''));" "$PR_BODY")
+          # Use Node.js to sanitize and extract the entire PR description content
+          node <<EOF > /tmp/sanitized_pr_description.txt
+          const fs = require('fs');
+          let content = fs.readFileSync('/tmp/original_pr.txt', 'utf8');
+          content = content.replace(/`/g, "'");  // Replace backticks with single quotes
+          console.log(content);
+          EOF
       
-          # Save the sanitized PR description for later steps
-          echo "$SANITIZED_DESCRIPTION" > /tmp/pr_description.txt
-      
-          # Compare using diff
+          # Save the template content to a file
           TEMPLATE_CONTENT=$(sed 's/"//g' .github/pull_request_template.md)
           echo "$TEMPLATE_CONTENT" > /tmp/template_content.txt
       
-          if diff /tmp/pr_description.txt /tmp/template_content.txt > /dev/null; then
+          # Compare using diff
+          if diff /tmp/sanitized_pr_description.txt /tmp/template_content.txt > /dev/null; then
             echo "ERROR: Sanitized PR description is identical to the template."
             exit 1
           else
@@ -58,6 +63,7 @@ jobs:
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 
     
       - name: Compare PR description with template
