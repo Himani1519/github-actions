@@ -90,7 +90,7 @@ jobs:
       - name: Check PR body against changelog
         run: |         
           ESCAPED_CHANGELOG="${{ steps.extract-changelog.outputs.changelog }}"
-          # ESCAPED_CHANGELOG=$(echo "$ESCAPED_CHANGELOG" | sed "s/'/\\\\'/g")
+          ESCAPED_CHANGELOG=$(echo "$ESCAPED_CHANGELOG" | sed "s/'/\\\\'/g")
           VERSION="${{ steps.extract-changelog.outputs.version }}"
           if ! grep -Fq "$ESCAPED_CHANGELOG" CHANGELOG.md; then
             # Check if version exists in CHANGELOG.md
