@@ -63,10 +63,16 @@ jobs:
           # Check if "changelog:" exists in PR description
           if echo "$PR_DESCRIPTION" | grep -q "VERSION:" && echo "$PR_DESCRIPTION" | grep -q "CHANGELOG:"; then
             # Extract content after "changelog:"
-            CHANGELOG_TEXT=node -e "const lines = process.env.split('\n'); \
-            lines.forEach((line)=> { \
-            if (line.startsWith('CHANGELOG: ') { \
-            console.log(line.substring('CHANGELOG: '.length));"
+           CHANGELOG_TEXT=$(node -e "
+              const prDescription = \`$PR_DESCRIPTION\`;
+              const lines = prDescription.split('\n');
+              
+              lines.forEach(line => {
+                if (line.startsWith('CHANGELOG: ')) {
+                  console.log(line.substring('CHANGELOG: '.length));
+                }
+              });
+              ")
             
             # Check if extracted CHANGELOG_TEXT is empty or identical to the template content
             TEMPLATE_CONTENT=$(cat /tmp/template_content.txt)
