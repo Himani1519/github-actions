@@ -53,31 +53,55 @@ jobs:
             echo "PR description and template are different."
           fi
 
-      - name: Compare PR description with template
+      - name: Extract changelog info
+        id: extract-changelog
         run: |
-          PR_BODY=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-          -H "Accept: application/vnd.github.v3+json" \
-          "https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}" | \
-          jq -r .body)
+          PR_DESCRIPTION=$(cat /tmp/pr_description.txt)
+          # Check if "changelog:" exists in PR description
+          if echo "$PR_DESCRIPTION" | grep -q "VERSION:" && echo "$PR_DESCRIPTION" | grep -q "CHANGELOG:"; then
+            # Extract content after "changelog:"
+            CHANGELOG_TEXT=$(echo $PR_DESCRIPTION | sed -n 's/.*CHANGELOG: \(.*\)/\1/p')
+            
+            # Check if extracted CHANGELOG_TEXT is empty or identical to the template content
+            TEMPLATE_CONTENT=$(cat /tmp/template_content.txt)
+            if [ -z "$CHANGELOG_TEXT" ] || [ "$CHANGELOG_TEXT" == "$TEMPLATE_CONTENT" ]; then
+              echo "The changelog information after 'CHANGELOG:' cannot be empty or identical to pull_request_template.md."
+              exit 1
+            fi
       
-          # Use Node.js to sanitize
-          SANITIZED_DESCRIPTION=$(node -e 'const input = process.argv[1]; console.log(input.replace(/`/g, ""));' "$PR_BODY")
-      
-          # Save the sanitized PR description for later steps
-          echo "$SANITIZED_DESCRIPTION" > /tmp/pr_description.txt
-      
-          # Compare using diff
-          TEMPLATE_CONTENT=$(sed 's/"//g' .github/pull_request_template.md)
-          echo "$TEMPLATE_CONTENT" > /tmp/template_content.txt
-      
-          if diff /tmp/pr_description.txt /tmp/template_content.txt > /dev/null; then
-            echo "ERROR: Sanitized PR description is identical to the template."
-            exit 1
+            # Extract VERSION: from PR description
+            VERSION=$(echo "$PR_DESCRIPTION" | grep -oP 'VERSION:\s*\Kv\d+\.\d+\.\d+')
+            echo "Extracted changelog: $CHANGELOG_TEXT"
+            echo "::set-output name=changelog::$CHANGELOG_TEXT"
+            echo "::set-output name=version::$VERSION"
           else
-            echo "Sanitized PR description and template are different."
+            echo -e "No changelog and version information found in PR description. Please add them.\nExpected Format:\nVERSION:vX.XX.X\nCHANGELOG:This is changelog note.\nTo re-run the action, just make a push or commit after updating the PR description or updating the changelog via a manual file changing commit."
+            exit 1
           fi
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check PR body against changelog
+        # if: steps.check-changelog.outputs.check_commit == 'false'
+        run: |
+          ESCAPED_CHANGELOG="${{ steps.extract-changelog.outputs.changelog }}"
+          ESCAPED_CHANGELOG=$(echo "$ESCAPED_CHANGELOG" | sed "s/'/\\\\'/g")
+          VERSION="${{ steps.extract-changelog.outputs.version }}"
+          if ! grep -Fq "$ESCAPED_CHANGELOG" CHANGELOG.md; then
+            # Check if version exists in CHANGELOG.md
+            if grep -q "^## $VERSION" CHANGELOG.md; then
+              # Append PR description to existing version
+              sed -i "/^## $VERSION/a - $ESCAPED_CHANGELOG (#${{ github.event.pull_request.number }})" CHANGELOG.md
+            else
+              # Append new version and PR description
+              ANCHOR_LINE=$(awk '/All notable changes to the Zlux App Server package will be documented in this file\./ {print NR}' CHANGELOG.md)
+              sed -i "$ANCHOR_LINE a\\
+              \n## $VERSION\n- $ESCAPED_CHANGELOG (#${{ github.event.pull_request.number }})\n" CHANGELOG.md
+            fi
+            git config --global user.email "zowe-robot@users.noreply.github.com"
+            git config --global user.name "Zowe Robot"
+            git add CHANGELOG.md
+            git commit -s -m "Update changelog with PR #${{ github.event.pull_request.number }} description"
+            git push
+          fi
 
       
       - name: Check PR body against changelog
