@@ -64,7 +64,7 @@ jobs:
       - name: Extract changelog info using Node.js
         id: extract-changelog
         run: |
-          PR_DESCRIPTION=$(cat /tmp/sanitized_pr_description.txt)
+          PR_DESCRIPTION=$(cat /tmp/pr_description.txt)
           
           # Check if "changelog:" exists in PR description
           if echo "$PR_DESCRIPTION" | grep -q "VERSION:" && echo "$PR_DESCRIPTION" | grep -q "CHANGELOG:"; then
