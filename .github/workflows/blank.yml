@@ -95,24 +95,24 @@ jobs:
       
       - name: Check PR body against changelog
         run: |
-          # Safely assign value without execution
           ESCAPED_CHANGELOG_VAR="${{ steps.extract-changelog.outputs.changelog }}"
           
-          # Convert backticks to a safer representation
-          ESCAPED_CHANGELOG=$(printf '%s' "$ESCAPED_CHANGELOG_VAR" | sed 's/`/\\`/g')
+          # Convert to Base64 to avoid any command execution
+          ESCAPED_CHANGELOG_B64=$(printf '%s' "$ESCAPED_CHANGELOG_VAR" | base64)
           
           VERSION="${{ steps.extract-changelog.outputs.version }}"
         
-          if ! grep -Fq "$ESCAPED_CHANGELOG" CHANGELOG.md; then
+          # Check against the CHANGELOG.md after decoding
+          if ! grep -Fq "$(echo $ESCAPED_CHANGELOG_B64 | base64 --decode)" CHANGELOG.md; then
             # Check if version exists in CHANGELOG.md
             if grep -q "^## $VERSION" CHANGELOG.md; then
               # Append PR description to existing version
-              sed -i "/^## $VERSION/a - $ESCAPED_CHANGELOG (#${{ github.event.pull_request.number }})" CHANGELOG.md
+              sed -i "/^## $VERSION/a - $(echo $ESCAPED_CHANGELOG_B64 | base64 --decode) (#${{ github.event.pull_request.number }})" CHANGELOG.md
             else
               # Append new version and PR description
               ANCHOR_LINE=$(awk '/All notable changes to the Zlux App Server package will be documented in this file\./ {print NR}' CHANGELOG.md)
               sed -i "$ANCHOR_LINE a\\
-              \n## $VERSION\n- $ESCAPED_CHANGELOG (#${{ github.event.pull_request.number }})\n" CHANGELOG.md
+              \n## $VERSION\n- $(echo $ESCAPED_CHANGELOG_B64 | base64 --decode) (#${{ github.event.pull_request.number }})\n" CHANGELOG.md
             fi
             git config --global user.email "zowe-robot@users.noreply.github.com"
             git config --global user.name "Zowe Robot"
@@ -120,7 +120,6 @@ jobs:
             git commit -s -m "Update changelog with PR #${{ github.event.pull_request.number }} description"
             git push
           fi
-
 
 
       
