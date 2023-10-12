@@ -59,6 +59,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
       - name: Extract changelog info
+        id: extract-changelog
         run: |
           PR_DESCRIPTION=$(cat /tmp/pr_description.txt)
           # Check if "changelog:" exists in PR description
