@@ -96,9 +96,12 @@ jobs:
       - name: Check PR body against changelog
         run: |
           ESCAPED_CHANGELOG="${{ steps.extract-changelog.outputs.changelog }}"
-          ESCAPED_CHANGELOG=$(echo "$ESCAPED_CHANGELOG" | sed "s/'/\\\\'/g")
+          
+          # Escape single quotes and backticks
+          ESCAPED_CHANGELOG=$(echo "$ESCAPED_CHANGELOG" | sed "s/'/\\\\'/g" | sed 's/`/\\`/g')
+          
           VERSION="${{ steps.extract-changelog.outputs.version }}"
-      
+        
           if ! grep -Fq "$ESCAPED_CHANGELOG" CHANGELOG.md; then
             # Check if version exists in CHANGELOG.md
             if grep -q "^## $VERSION" CHANGELOG.md; then
@@ -116,6 +119,7 @@ jobs:
             git commit -s -m "Update changelog with PR #${{ github.event.pull_request.number }} description"
             git push
           fi
+
       
       - name: check for changes
         id: check-change
