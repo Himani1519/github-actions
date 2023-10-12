@@ -14,24 +14,9 @@ jobs:
     steps:
      - name: Fetch and Sanitize PR description
        run: |
-          PR_BODY=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}" | \
-            jq -r .body)
-            
-          echo "Original PR Description:"
-          echo "--------------------------------"
-          echo "$PR_BODY"
-          echo "--------------------------------"
-      
-          SANITIZED_PR_DESCRIPTION=$(echo "$PR_BODY" | sed "s/\`/[BT]/g")
-          echo "Sanitized PR Description:"
-          echo "--------------------------------"
-          echo "$SANITIZED_PR_DESCRIPTION"
-          echo "--------------------------------"
-      
-          echo "$SANITIZED_PR_DESCRIPTION" > /tmp/pr_description.txt
-       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_DESCRIPTION="${{ github.event.pull_request.body }}"
+          # Safely print the PR description using Node.js
+          node -e 'const prDesc = process.argv[1]; console.log(prDesc);' "$PR_DESCRIPTION"
+
       
   
