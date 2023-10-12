@@ -23,7 +23,7 @@ jobs:
           ref: ${{ github.head_ref }}
           fetch-depth: 0
 
-      - name: Check for updated CHANGELOG.md using git
+      # - name: Check for updated CHANGELOG.md using git
       #   id: check-changelog
       #   run: |
       #     if git diff --name-only origin/${{ github.base_ref }} | grep -q "^CHANGELOG.md$"; then
