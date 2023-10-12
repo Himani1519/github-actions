@@ -42,17 +42,10 @@ jobs:
           echo "$PR_DESCRIPTION" > /tmp/pr_description.txt
           echo "PR DESCRIPTION saved to /tmp/pr_description.txt."
       
-          # Save the template content to a file without modifying it
-          cat .github/pull_request_template.md > /tmp/template_content.txt
-          echo "Template content saved to /tmp/template_content.txt."
-      
-          # Print the template content
-          echo "----- Template Start -----"
-          cat /tmp/template_content.txt
-          echo "----- Template End -----"
+    
               
           # Use diff to compare the two files
-          if diff -wB /tmp/pr_description.txt /tmp/template_content.txt > /dev/null; then
+          if diff -wB /tmp/pr_description.txt .github/pull_request_template.md > /dev/null; then
             echo "ERROR: PR description is identical to the template."
             exit 1
           else
