@@ -94,23 +94,15 @@ jobs:
           PR_DESCRIPTION: ${{ env.PR_DESCRIPTION }}
       
       - name: Check PR body against changelog
-        run: |
-         
-          PR_DESC="${{ github.event.pull_request.body }}"
-          # Replace backticks to prevent command execution and replace single quotes for safety in further processing
-          SANITIZED_PR_DESC=$(echo "$PR_DESC" | sed "s/\`/'/g" | sed "s/'/''/g")
-          echo "..............Sanitized PR description:"
-          echo "$SANITIZED_PR_DESC"
-
-          
+        run: |         
+          ESCAPED_CHANGELOG="${{ steps.extract-changelog.outputs.changelog }}"
+          # ESCAPED_CHANGELOG=$(echo "$ESCAPED_CHANGELOG" | sed "s/'/\\\\'/g")
           VERSION="${{ steps.extract-changelog.outputs.version }}"
-        
-          # Check against the CHANGELOG.md
           if ! grep -Fq "$ESCAPED_CHANGELOG" CHANGELOG.md; then
             # Check if version exists in CHANGELOG.md
             if grep -q "^## $VERSION" CHANGELOG.md; then
               # Append PR description to existing version
-              printf "/^## %s/a \\\n- %s (#%s)\n" "$VERSION" "$ESCAPED_CHANGELOG" "${{ github.event.pull_request.number }}" | sed -i -f - CHANGELOG.md
+              sed -i "/^## $VERSION/a - $ESCAPED_CHANGELOG (#${{ github.event.pull_request.number }})" CHANGELOG.md
             else
               # Append new version and PR description
               ANCHOR_LINE=$(awk '/All notable changes to the Zlux App Server package will be documented in this file\./ {print NR}' CHANGELOG.md)
@@ -123,9 +115,6 @@ jobs:
             git commit -s -m "Update changelog with PR #${{ github.event.pull_request.number }} description"
             git push
           fi
-
-
-
       
       - name: check for changes
         id: check-change
