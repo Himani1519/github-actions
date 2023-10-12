@@ -95,10 +95,13 @@ jobs:
       
       - name: Check PR body against changelog
         run: |
-          ESCAPED_CHANGELOG_VAR="${{ steps.extract-changelog.outputs.changelog }}"
-          
-          # Replace all backticks with single quotes and avoid any command execution
-          ESCAPED_CHANGELOG=$(echo "$ESCAPED_CHANGELOG_VAR" | sed "s/\`/'/g")
+         
+          PR_DESC="${{ github.event.pull_request.body }}"
+          # Replace backticks to prevent command execution and replace single quotes for safety in further processing
+          SANITIZED_PR_DESC=$(echo "$PR_DESC" | sed "s/\`/'/g" | sed "s/'/''/g")
+          echo "..............Sanitized PR description:"
+          echo "$SANITIZED_PR_DESC"
+
           
           VERSION="${{ steps.extract-changelog.outputs.version }}"
         
