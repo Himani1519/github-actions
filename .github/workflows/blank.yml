@@ -69,14 +69,8 @@ jobs:
           # Check if "changelog:" exists in PR description
           if echo "$PR_DESCRIPTION" | grep -q "VERSION:" && echo "$PR_DESCRIPTION" | grep -q "CHANGELOG:"; then
             
-            # Extract content after "changelog:" using Node.js
-            CHANGELOG_TEXT=$(node -e "const lines = process.env.PR_DESCRIPTION.split('\n'); \
-            for (const line of lines) { \
-              if (line.startsWith('CHANGELOG: ')) { \
-                console.log(line.substring('CHANGELOG: '.length)); \
-                break; \
-              } \
-            }")
+            # Extract content after "changelog:"
+            CHANGELOG_TEXT=$(echo $PR_DESCRIPTION | sed -n 's/.*CHANGELOG: \(.*\)/\1/p')
       
             # Extract VERSION: from PR description
             VERSION=$(echo "$PR_DESCRIPTION" | grep -oP 'VERSION:\s*\Kv\d+\.\d+\.\d+')
