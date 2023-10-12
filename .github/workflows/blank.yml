@@ -40,7 +40,7 @@ jobs:
           "https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}" | \
           jq -r .body)
       
-          SANITIZED_PR_DESCRIPTION=$(printf "%s" "$PR_BODY" | sed "s/\`/[BT]/g")
+          SANITIZED_PR_DESCRIPTION=$(printf "%s" "$PR_BODY" | sed "s/\`/'/g")
           printf "%s" "$SANITIZED_PR_DESCRIPTION" > /tmp/pr_description.txt
           
           # Save the template content to a file
