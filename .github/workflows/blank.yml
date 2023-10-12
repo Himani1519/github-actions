@@ -56,7 +56,6 @@ jobs:
   
       - name: Extract changelog info
         run: |
-          PR_DESCRIPTION=$(cat /tmp/pr_description.txt)
           # Extract changelog info using Node.js
           CHANGELOG_TEXT=$(node -e "
           const prDescription = process.env.PR_DESCRIPTION;
@@ -67,14 +66,14 @@ jobs:
             }
           });
           ")
-  
+      
           # Check if extracted CHANGELOG_TEXT is empty or identical to the template content
           TEMPLATE_CONTENT=$(cat /tmp/template_content.txt)
           if [ -z "$CHANGELOG_TEXT" ] || [ "$CHANGELOG_TEXT" == "$TEMPLATE_CONTENT" ]; then
             echo "The changelog information after 'CHANGELOG:' cannot be empty or identical to pull_request_template.md."
             exit 1
           fi
-        
+          
             # Extract VERSION: from PR description
             VERSION=$(echo "$PR_DESCRIPTION" | grep -oP 'VERSION:\s*\Kv\d+\.\d+\.\d+')
             echo "Extracted changelog: $CHANGELOG_TEXT"
