@@ -35,12 +35,16 @@ jobs:
       #     fi
       - name: Compare PR description with template
         run: |
-          PR_BODY=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-          -H "Accept: application/vnd.github.v3+json" \
-          "https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}" | \
-          jq -r .body)
-          SANITIZED_PR_DESCRIPTION=$(echo "$PR_BODY" | sed "s/\`/[BT]/g")
-          echo "$SANITIZED_PR_DESCRIPTION" > /tmp/pr_description.txt
+          # PR_BODY=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          # -H "Accept: application/vnd.github.v3+json" \
+          # "https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}" | \
+          # jq -r .body)
+          # SANITIZED_PR_DESCRIPTION=$(echo "$PR_BODY" | sed "s/\`/[BT]/g")
+          # echo "$SANITIZED_PR_DESCRIPTION" > /tmp/pr_description.txt
+          PR_DESCRIPTION="${{ github.event.pull_request.body }}"
+          PR_DESCRIPTION=$(echo "$PR_DESCRIPTION" | sed "s/\`/[BT]/g")
+          echo "$PR_DESCRIPTION" > /tmp/pr_description.txt
+          echo " PR description is............... $PR_DESCRIPTION"
           # Save the template content to a file
           TEMPLATE_CONTENT=$(sed 's/"//g' .github/pull_request_template.md)
           echo "$TEMPLATE_CONTENT" > /tmp/template_content.txt
