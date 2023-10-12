@@ -60,37 +60,32 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     
-      - name: Extract changelog info using Node.js
-        id: extract-changelog
+      - name: Compare PR description with template
         run: |
-          PR_DESCRIPTION=$(cat /tmp/pr_description.txt)
-          
-          # Check if "changelog:" exists in PR description
-          if echo "$PR_DESCRIPTION" | grep -q "VERSION:" && echo "$PR_DESCRIPTION" | grep -q "CHANGELOG:"; then
-            
-            # Extract content after "changelog:" using Node.js
-            CHANGELOG_TEXT=$(node -e "const lines = process.env.PR_DESCRIPTION.split('\n'); \
-            for (const line of lines) { \
-              if (line.startsWith('CHANGELOG: ')) { \
-                console.log(line.substring('CHANGELOG: '.length)); \
-                break; \
-              } \
-            }")
+          PR_BODY=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          -H "Accept: application/vnd.github.v3+json" \
+          "https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}" | \
+          jq -r .body)
       
-            # Extract VERSION: from PR description
-            VERSION=$(echo "$PR_DESCRIPTION" | grep -oP 'VERSION:\s*\Kv\d+\.\d+\.\d+')
+          # Use Node.js to sanitize
+          SANITIZED_DESCRIPTION=$(node -e 'const input = process.argv[1]; console.log(input.replace(/`/g, ""));' "$PR_BODY")
       
-            echo "Extracted changelog: $CHANGELOG_TEXT"
-            echo "::set-output name=changelog::$CHANGELOG_TEXT"
-            echo "::set-output name=version::$VERSION"
-            
-          else
-            echo -e "No changelog and version information found in PR description. Please add them.\nExpected Format:\nVERSION:vX.XX.X\nCHANGELOG:This is changelog note.\nTo re-run the action, just make a push or commit after updating the PR description or updating the changelog via a manual file changing commit."
+          # Save the sanitized PR description for later steps
+          echo "$SANITIZED_DESCRIPTION" > /tmp/pr_description.txt
+      
+          # Compare using diff
+          TEMPLATE_CONTENT=$(sed 's/"//g' .github/pull_request_template.md)
+          echo "$TEMPLATE_CONTENT" > /tmp/template_content.txt
+      
+          if diff /tmp/pr_description.txt /tmp/template_content.txt > /dev/null; then
+            echo "ERROR: Sanitized PR description is identical to the template."
             exit 1
+          else
+            echo "Sanitized PR description and template are different."
           fi
-      
         env:
-          PR_DESCRIPTION: ${{ env.PR_DESCRIPTION }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       
       - name: Check PR body against changelog
         run: |
