@@ -90,7 +90,7 @@ jobs:
       - name: Check PR body against changelog
         run: |         
           # Convert backticks to single quotes
-          ESCAPED_CHANGELOG=$(echo "${{ steps.extract-changelog.outputs.changelog }}" | sed "s/\`\([^`]*\)\`/'\1'/g")
+          ESCAPED_CHANGELOG=$(echo "${{ steps.extract-changelog.outputs.changelog }}" | sed 's/`\(.*\)`/'\''\1'\''/g')
           
           VERSION="${{ steps.extract-changelog.outputs.version }}"
           
