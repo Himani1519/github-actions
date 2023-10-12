@@ -96,33 +96,35 @@ jobs:
       
       - name: Check PR body against changelog
         run: |         
+          # Print the raw PR changelog description
+          echo "Direct output: ${{ steps.extract-changelog.outputs.changelog }}"
 
-          # Convert backticks to single quotes
-          ESCAPED_CHANGELOG=$(echo "${{ steps.extract-changelog.outputs.changelog }}" | sed "s/\`/'/g")
-          echo "Raw CHANGELOG Input: $ESCAPED_CHANGELOG"
-          ESCAPED_CHANGELOG=$(echo "$ESCAPED_CHANGELOG" | sed "s/\`/'/g")
-          echo "Transformed CHANGELOG Input: $ESCAPED_CHANGELOG"
-          sed -i "/^## $VERSION/a - $ESCAPED_CHANGELOG (#${{ github.event.pull_request.number }})" CHANGELOG.md
+          # # Convert backticks to single quotes
+          # ESCAPED_CHANGELOG=$(echo "${{ steps.extract-changelog.outputs.changelog }}" | sed "s/\`/'/g")
+          # echo "Raw CHANGELOG Input: $ESCAPED_CHANGELOG"
+          # ESCAPED_CHANGELOG=$(echo "$ESCAPED_CHANGELOG" | sed "s/\`/'/g")
+          # echo "Transformed CHANGELOG Input: $ESCAPED_CHANGELOG"
+          # sed -i "/^## $VERSION/a - $ESCAPED_CHANGELOG (#${{ github.event.pull_request.number }})" CHANGELOG.md
           
-          VERSION="${{ steps.extract-changelog.outputs.version }}"
+          # VERSION="${{ steps.extract-changelog.outputs.version }}"
           
-          if ! grep -Fq "$ESCAPED_CHANGELOG" CHANGELOG.md; then
-            # Check if version exists in CHANGELOG.md
-            if grep -q "^## $VERSION" CHANGELOG.md; then
-              # Append PR description to existing version
-              sed -i "/^## $VERSION/a - $ESCAPED_CHANGELOG (#${{ github.event.pull_request.number }})" CHANGELOG.md
-            else
-              # Append new version and PR description
-              ANCHOR_LINE=$(awk '/All notable changes to the Zlux App Server package will be documented in this file\./ {print NR}' CHANGELOG.md)
-              sed -i "$ANCHOR_LINE a\\
-              \n## $VERSION\n- $ESCAPED_CHANGELOG (#${{ github.event.pull_request.number }})\n" CHANGELOG.md
-            fi
-            git config --global user.email "zowe-robot@users.noreply.github.com"
-            git config --global user.name "Zowe Robot"
-            git add CHANGELOG.md
-            git commit -s -m "Update changelog with PR #${{ github.event.pull_request.number }} description"
-            git push
-          fi
+          # if ! grep -Fq "$ESCAPED_CHANGELOG" CHANGELOG.md; then
+          #   # Check if version exists in CHANGELOG.md
+          #   if grep -q "^## $VERSION" CHANGELOG.md; then
+          #     # Append PR description to existing version
+          #     sed -i "/^## $VERSION/a - $ESCAPED_CHANGELOG (#${{ github.event.pull_request.number }})" CHANGELOG.md
+          #   else
+          #     # Append new version and PR description
+          #     ANCHOR_LINE=$(awk '/All notable changes to the Zlux App Server package will be documented in this file\./ {print NR}' CHANGELOG.md)
+          #     sed -i "$ANCHOR_LINE a\\
+          #     \n## $VERSION\n- $ESCAPED_CHANGELOG (#${{ github.event.pull_request.number }})\n" CHANGELOG.md
+          #   fi
+          #   git config --global user.email "zowe-robot@users.noreply.github.com"
+          #   git config --global user.name "Zowe Robot"
+          #   git add CHANGELOG.md
+          #   git commit -s -m "Update changelog with PR #${{ github.event.pull_request.number }} description"
+          #   git push
+          # fi
 
 
       - name: check for changes
