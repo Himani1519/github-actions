@@ -43,12 +43,10 @@ jobs:
           echo "$PR_BODY" > /tmp/original_pr.txt
       
           # Use Node.js to sanitize and extract the entire PR description content
-          node <<EOF > /tmp/sanitized_pr_description.txt
-          const fs = require('fs');
-          let content = fs.readFileSync('/tmp/original_pr.txt', 'utf8');
-          content = content.replace(/`/g, "'");  // Replace backticks with single quotes
-          console.log(content);
-          EOF
+          node -e "const fs = require('fs'); \
+          let content = fs.readFileSync('/tmp/original_pr.txt', 'utf8'); \
+          content = content.replace(/\`/g, \"'\"); \
+          console.log(content);" > /tmp/sanitized_pr_description.txt
       
           # Save the template content to a file
           TEMPLATE_CONTENT=$(sed 's/"//g' .github/pull_request_template.md)
@@ -63,6 +61,7 @@ jobs:
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 
 
     
