@@ -38,7 +38,7 @@ if (description.includes('VERSION:') && description.includes('CHANGELOG:')) {
     for (let i = 0; i < changelogLines.length; i++) {
       if (changelogLines[i].includes('All notable changes to the Zlux App Server package will be documented in this file')) {
         anchorIndex = i;
-      } else if (changelogLines[i].startsWith('## v' + version)) {
+      } else if (changelogLines[i].startsWith('##' + version)) {
         versionIndex = i;
         break;
       }
