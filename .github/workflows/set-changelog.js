@@ -29,6 +29,7 @@ if (description.includes('VERSION:') && description.includes('CHANGELOG:')) {
 
   // Debug the extracted version
   console.log("Extracted version:", version);
+  console.log("Extracted changelog:", changelogMsg);
 
   if (changelogMsg && version) {
     let changelog = fs.readFileSync('CHANGELOG.md', 'utf8');
