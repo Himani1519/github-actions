@@ -2,6 +2,7 @@
 
 ## 2.11.0
 - another test. (#12)
+- another test. (#12)
 
 All notable changes to the sample angular app will be documented in this file.
 
