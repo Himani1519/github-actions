@@ -20,14 +20,14 @@ if (description.includes('VERSION:') && description.includes('CHANGELOG:')) {
     if (line.startsWith('CHANGELOG:')) {
       changelogMsg = line.substring('CHANGELOG:'.length).trim();
     } else if (line.startsWith('VERSION:')) {
-      const versionMatch = line.match(/VERSION:\s*([\d\.]+)/);
+      const versionMatch = line.match(/VERSION:\s*([\d\.]+)/);  // Simple regex to capture the version
       if (versionMatch) {
         version = versionMatch[1];
       }
     }
   });
 
-  // Add a log to debug the extracted version
+  // Debug the extracted version
   console.log("Extracted version:", version);
 
   if (changelogMsg && version) {
@@ -38,7 +38,7 @@ if (description.includes('VERSION:') && description.includes('CHANGELOG:')) {
     for (let i = 0; i < changelogLines.length; i++) {
       if (changelogLines[i].includes('All notable changes to the Zlux App Server package will be documented in this file')) {
         anchorIndex = i;
-      } else if (changelogLines[i].startsWith('##' + version)) {
+      } else if (changelogLines[i].startsWith('## ' + version)) {  // Direct comparison without adding a prefix
         versionIndex = i;
         break;
       }
