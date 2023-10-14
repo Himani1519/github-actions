@@ -30,7 +30,7 @@ if (description.includes('VERSION:') && description.includes('CHANGELOG:')) {
   // Debug the extracted version
   console.log("Extracted version:", version);
   console.log("Extracted changelog:", changelogMsg);
-
+  
   if (changelogMsg && version) {
     let changelog = fs.readFileSync('CHANGELOG.md', 'utf8');
     let changelogLines = changelog.split('\n');
@@ -46,7 +46,6 @@ if (description.includes('VERSION:') && description.includes('CHANGELOG:')) {
     }
     console.log("Anchor Index:", anchorIndex);  // Debug log
     console.log("Version Index:", versionIndex);  // Debug log
-}
     if (versionIndex != -1) {
       changelogLines.splice(versionIndex+2, 0, `- ${changelogMsg} (#${PR_NUMBER})`);
     } else {
