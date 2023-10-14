@@ -2,6 +2,9 @@
 
 All notable changes to the Zlux App Server package will be documented in this file.
 
+## .11.0
+- another test. (#12)
+
 ## 2.15.0
 - this is test `ls-lt`. (#12)
 
