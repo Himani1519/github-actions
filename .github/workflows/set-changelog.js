@@ -10,6 +10,7 @@ Copyright Contributors to the Zowe Project.
 
 const fs = require('fs');
 
+// Must run with args: PR_NUMBER
 const PR_NUMBER = process.argv[2];
 const description = fs.readFileSync('/tmp/pr_description.txt', 'utf8');
 let changelogMsg, version;
@@ -20,36 +21,27 @@ if (description.includes('VERSION:') && description.includes('CHANGELOG:')) {
     if (line.startsWith('CHANGELOG:')) {
       changelogMsg = line.substring('CHANGELOG:'.length).trim();
     } else if (line.startsWith('VERSION:')) {
-      const versionMatch = line.match(/VERSION:\s*([\d\.]+)/);  // Simple regex to capture the version
-      if (versionMatch) {
-        version = versionMatch[1];
-      }
+      version = line.substring('VERSION:'.length).trim();
     }
   });
 
-  // Debug the extracted version
-  console.log("Extracted version:", version);
-  console.log("Extracted changelog:", changelogMsg);
-  
   if (changelogMsg && version) {
     let changelog = fs.readFileSync('CHANGELOG.md', 'utf8');
     let changelogLines = changelog.split('\n');
     let versionIndex = -1;
     let anchorIndex = 0;
     for (let i = 0; i < changelogLines.length; i++) {
-        if (changelogLines[i].includes('All notable changes to the Zlux App Server package will be documented in this file')) {
-            anchorIndex = i;
-        } else if (changelogLines[i].startsWith('## ' + version)) {
-            versionIndex = i;
-            break;
-        }
+      if (changelogLines[i].includes('All notable changes to the Zlux App Server package will be documented in this file')) {
+        anchorIndex = i;
+      } else if (changelogLines[i].startsWith('## ' + version)) {  // Removed "v" prefix
+        versionIndex = i;
+        break;
+      }
     }
-    console.log("Anchor Index:", anchorIndex);  // Debug log
-    console.log("Version Index:", versionIndex);  // Debug log
     if (versionIndex != -1) {
-      changelogLines.splice(versionIndex+2, 0, `- ${changelogMsg} (#${PR_NUMBER})`);
+      changelogLines.splice(versionIndex + 2, 0, `- ${changelogMsg} (#${PR_NUMBER})`);
     } else {
-      changelogLines.splice(anchorIndex+1, 0, `\n## ${version}\n- ${changelogMsg} (#${PR_NUMBER})`);
+      changelogLines.splice(anchorIndex + 1, 0, `\n## ${version}\n- ${changelogMsg} (#${PR_NUMBER})`);
     }
     const newChangelog = changelogLines.join('\n');
     fs.writeFileSync('CHANGELOG.md', newChangelog);
@@ -61,7 +53,7 @@ if (description.includes('VERSION:') && description.includes('CHANGELOG:')) {
     if (!version) {
       console.log('Missing VERSION');
     }
-  }    
+  }
 } else {
   console.log('Missing CHANGELOG or VERSION');
 }
