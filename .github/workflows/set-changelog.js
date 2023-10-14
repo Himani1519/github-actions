@@ -37,13 +37,16 @@ if (description.includes('VERSION:') && description.includes('CHANGELOG:')) {
     let versionIndex = -1;
     let anchorIndex = 0;
     for (let i = 0; i < changelogLines.length; i++) {
-      if (changelogLines[i].includes('All notable changes to the sample angular app will be documented in this file.')) {
-        anchorIndex = i;
-      } else if (changelogLines[i].startsWith('## ' + version)) {  // Direct comparison without adding a prefix
-        versionIndex = i;
-        break;
-      }
+        if (changelogLines[i].includes('All notable changes to the Zlux App Server package will be documented in this file')) {
+            anchorIndex = i;
+        } else if (changelogLines[i].startsWith('## ' + version)) {
+            versionIndex = i;
+            break;
+        }
     }
+    console.log("Anchor Index:", anchorIndex);  // Debug log
+    console.log("Version Index:", versionIndex);  // Debug log
+}
     if (versionIndex != -1) {
       changelogLines.splice(versionIndex+2, 0, `- ${changelogMsg} (#${PR_NUMBER})`);
     } else {
