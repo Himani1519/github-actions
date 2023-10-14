@@ -8,32 +8,37 @@ SPDX-License-Identifier: EPL-2.0
 Copyright Contributors to the Zowe Project.
 */
 
-const fs=require('fs');
+const fs = require('fs');
 
-//Must run with args: PR_NUMBER
 const PR_NUMBER = process.argv[2];
-
 const description = fs.readFileSync('/tmp/pr_description.txt', 'utf8');
-let changelogMsg, version; 
+let changelogMsg, version;
 
-if (description.includes('VERSION:') && description.includes('CHANGELOG:')) { 
-  let lines = description.split('\n'); 
-  lines.forEach((line)=> { 
-    if (line.startsWith('CHANGELOG:')) { 
-      changelogMsg = line.substring('CHANGELOG:'.length+1).trim(); 
-    } else if (line.startsWith('VERSION:')) { 
-      version = line.substring('VERSION:'.length+1).trim();
-    } 
-  }); 
-  if (changelogMsg && version) { 
-    let changelog = fs.readFileSync('CHANGELOG.md', 'utf8'); 
+if (description.includes('VERSION:') && description.includes('CHANGELOG:')) {
+  let lines = description.split('\n');
+  lines.forEach((line) => {
+    if (line.startsWith('CHANGELOG:')) {
+      changelogMsg = line.substring('CHANGELOG:'.length).trim();
+    } else if (line.startsWith('VERSION:')) {
+      const versionMatch = line.match(/VERSION:\s*([\d\.]+)/);
+      if (versionMatch) {
+        version = versionMatch[1];
+      }
+    }
+  });
+
+  // Add a log to debug the extracted version
+  console.log("Extracted version:", version);
+
+  if (changelogMsg && version) {
+    let changelog = fs.readFileSync('CHANGELOG.md', 'utf8');
     let changelogLines = changelog.split('\n');
     let versionIndex = -1;
     let anchorIndex = 0;
     for (let i = 0; i < changelogLines.length; i++) {
       if (changelogLines[i].includes('All notable changes to the Zlux App Server package will be documented in this file')) {
         anchorIndex = i;
-      } else if (changelogLines[i].startsWith('## v'+version)) {
+      } else if (changelogLines[i].startsWith('## v' + version)) {
         versionIndex = i;
         break;
       }
