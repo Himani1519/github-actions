@@ -72,7 +72,7 @@ jobs:
             echo "Updated CHANGELOG from description"
           else
             echo $result
-            echo -e "No changelog and version information found in PR description. Please add them.\nExpected Format:\nVERSION:vX.XX.X\nCHANGELOG:This is changelog note.\nTo re-run the action, just make a push or commit after updating the PR description or updating the changelog via a manual file changing commit."
+            echo -e "No changelog and version information found in PR description. Please add them.\nExpected Format:\nVERSION:X.XX.X\nCHANGELOG:This is changelog note.\nTo re-run the action, just make a push or commit after updating the PR description or updating the changelog via a manual file changing commit."
             exit 1
           fi
 
