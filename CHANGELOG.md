@@ -2,6 +2,9 @@
 
 All notable changes to the Zlux App Server package will be documented in this file.
 
+## v2.16.0
+- This is for testing. (#12)
+
 ## v2.15.0
 - This is for testing. (#12)
     
