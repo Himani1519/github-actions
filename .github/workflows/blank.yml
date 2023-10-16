@@ -1,24 +1,14 @@
-name: Build Core
+name: Build sample-angular-app workflow
 on:
   push:
     branches:
       - v2.x/staging
+      - v2.x/rc
+      - v2.x/master
   pull_request:
     types: [opened, reopened, synchronize]
 
-
 jobs:
-  check-permission:
-    runs-on: ubuntu-latest
-    steps:
-      # this action will fail the whole workflow if permission check fails
-      - name: check permission
-        uses: zowe-actions/shared-actions/permission-check@main
-        with:
-          user: ${{ github.actor }}
-          github-repo: ${{ github.repository }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-
   update-changelog:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
@@ -32,18 +22,18 @@ jobs:
           ref: ${{ github.head_ref }}
           fetch-depth: 0
 
-      # - name: Check for updated CHANGELOG.md using git
-      #   id: check-changelog
-      #   run: |
-      #     if git diff --name-only origin/${{ github.base_ref }} | grep -q "^CHANGELOG.md$"; then
-      #       echo "CHANGELOG.md has been updated."
-      #       echo "::set-output name=check_commit::true"
-      #     else
-      #       echo "ERROR: CHANGELOG.md has not been updated."
-      #       echo "::set-output name=check_commit::false"
-      #     fi
+      - name: Check for updated CHANGELOG.md using git
+        id: check-changelog
+        run: |
+          if git diff --name-only origin/${{ github.base_ref }} | grep -q "^CHANGELOG.md$"; then
+            echo "CHANGELOG.md has been updated."
+            echo "::set-output name=check_commit::true"
+          else
+            echo "ERROR: CHANGELOG.md has not been updated."
+            echo "::set-output name=check_commit::false"
+          fi
       - name: Compare PR description with template
-        # if: steps.check-changelog.outputs.check_commit == 'false'
+        if: steps.check-changelog.outputs.check_commit == 'false'
         env:
           PR_DESCRIPTION: ${{ github.event.pull_request.body }}
         run: |
@@ -59,7 +49,7 @@ jobs:
           fi
 
       - name: Check PR body against changelog
-        # if: steps.check-changelog.outputs.check_commit == 'false'
+        if: steps.check-changelog.outputs.check_commit == 'false'
         id: extract-changelog
         run: |
           result=$(node .github/workflows/set-changelog.js ${{ github.event.pull_request.number }})
@@ -85,6 +75,7 @@ jobs:
           else
             echo "::set-output name=change_detected::true"
             fi
+
   check_changelog:
     if: github.event_name == 'pull_request'
     needs: update-changelog
@@ -101,4 +92,5 @@ jobs:
           else
             echo "changelog was updated successfully."
           fi
+
   
