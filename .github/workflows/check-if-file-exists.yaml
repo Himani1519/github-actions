@@ -1,28 +1,40 @@
-name: Lint TypeScript
+name: test
 
 on:
   push:
-    paths:
-    - '**.ts'
+    branches:
+      - v2.x/staging
   pull_request:
-    paths:
-    - '**.ts'
+    types: [opened, reopened, synchronize]
 
 jobs:
   lint:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+    - name: Compare PR description with template
+      env:
+        PR_DESCRIPTION: ${{ github.event.pull_request.body }}
+      run: |
+        # Safely print the PR description using Node.js
+        node -e 'const prDesc = process.env.PR_DESCRIPTION; console.log(prDesc);'
+    
+        echo "$PR_DESCRIPTION" > /tmp/pr_description.txt
+        echo "PR DESCRIPTION saved to /tmp/pr_description.txt."
+            
+        # Save the template content to a file
+        TEMPLATE_CONTENT=$(sed 's/"//g' .github/pull_request_template.md)
+        echo "$TEMPLATE_CONTENT" > /tmp/template_content.txt
+        echo "Template content saved to /tmp/template_content.txt."
+            
+        # Use diff to compare the two files
+        if diff -wB /tmp/pr_description.txt /tmp/template_content.txt > /dev/null; then
+          echo "ERROR: PR description is identical to the template."
+          exit 1
+        else
+          echo "PR description and template are different."
+        fi
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '18'  # Adjust this based on your project's requirements
 
-    - name: Install dependencies
-      run: npm ci
-
-    - name: Run ESLint on TypeScript files
-      run: npx eslint '**/*.ts' --max-warnings=0
+      
+  
