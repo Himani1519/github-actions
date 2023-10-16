@@ -41,7 +41,7 @@ if (description.includes('VERSION:') && description.includes('CHANGELOG:')) {
     if (versionIndex != -1) {
       changelogLines.splice(versionIndex + 2, 0, `- ${changelogMsg} (#${PR_NUMBER})`);
     } else {
-      changelogLines.splice(anchorIndex + 1, 0, `\n## ${version}\n- ${changelogMsg} (#${PR_NUMBER})`);
+      changelogLines.splice(anchorIndex + 1, 0, `\n## \`${version}\`\n- ${changelogMsg} (#${PR_NUMBER})`);
     }
     const newChangelog = changelogLines.join('\n');
     fs.writeFileSync('CHANGELOG.md', newChangelog);
