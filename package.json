@@ -11,7 +11,10 @@
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
-    "lint": "eslint --ext .ts,.tsx ."
+    "lint": "npm run lint:js && npm run lint:sh && npm run lint:bat",
+    "lint:js": "eslint . --ext .js",
+    "lint:sh": "find . -type f -name '*.sh' -exec shellcheck {} +",
+    "lint:bat": "find . -type f -name '*.bat' -exec dos2unix -k {} +"
   },
   "keywords": [],
   "license": "EPL 2.0",
