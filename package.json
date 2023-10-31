@@ -8,9 +8,10 @@
   "scripts": {
     "build": "exit 0",
     "test": "echo \"Warning: no test specified\" && exit 0",
+    "lint:js": "eslint . --ext .js",
     "lint:sh": "find . -type f -name '*.sh' -exec shellcheck {} +",
     "lint:bat": "find . -type f -name '*.bat' -exec dos2unix -k {} +",
-    "lint": "npm run lint:sh && npm run lint:bat"
+    "lint": "npm run lint:js && npm run lint:sh && npm run lint:bat"
   },
   "dependencies": {
     "mkdirp": "~0.5.1",
