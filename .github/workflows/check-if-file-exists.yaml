@@ -1,12 +1,10 @@
-name: Lint TypeScript
+name: Lint Check
 
 on:
   push:
-    paths:
-    - '**.ts'
+    branches:
+      - main  
   pull_request:
-    paths:
-    - '**.ts'
 
 jobs:
   lint:
@@ -16,13 +14,14 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '18'  # Adjust this based on your project's requirements
+    - name: Set up ShellCheck for .sh files
+      run: sudo apt-get update && sudo apt-get install -y shellcheck
 
-    - name: Install dependencies
-      run: npm ci
+    - name: Lint .sh files
+      run: find . -type f -name "*.sh" -exec shellcheck {} \;
 
-    - name: Run ESLint on TypeScript files
-      run: npx eslint '**/*.ts' --max-warnings=0
+    - name: Set up ShellCheck for .bat files
+      run: sudo apt-get install -y dos2unix
+
+    - name: Lint .bat files
+      run: find . -type f -name "*.bat" -exec dos2unix -k {} \; && find . -type f -name "*.bat" -exec shellcheck {} \;
