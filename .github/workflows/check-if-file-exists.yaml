@@ -3,7 +3,7 @@ name: Lint TypeScript
 on:
   push:
     branches:
-      - v2.x/staging
+      - main
   pull_request:
     types: [opened, reopened, synchronize]
 
