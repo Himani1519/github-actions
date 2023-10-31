@@ -8,10 +8,10 @@
   "scripts": {
     "build": "exit 0",
     "test": "echo \"Warning: no test specified\" && exit 0",
-    "lint:js": "eslint . --ext .js",
-    "lint:sh": "find . -type f -name '*.sh' -exec shellcheck {} +",
-    "lint:bat": "find . -type f -name '*.bat' -exec dos2unix -k {} +",
-    "lint": "npm run lint:js && npm run lint:sh && npm run lint:bat"
+    "lint:js": "eslint .", // ESLint for JavaScript
+    "lint:sh": "find . -type f -name '*.sh' -exec shellcheck {} +", // ShellCheck for Shell Scripts
+    "lint:bat": "find . -type f -name '*.bat' -exec dos2unix -k {} +", // dos2unix for Batch Files
+    "lint": "npm run lint:js && npm run lint:sh && npm run lint:bat" // To lint all file types
   },
   "dependencies": {
     "mkdirp": "~0.5.1",
