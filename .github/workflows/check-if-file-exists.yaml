@@ -29,4 +29,8 @@ jobs:
         run: npm ci
 
       - name: Lint TypeScript
-        run: npm run lint:sh && npm run lint:bat && npm run lint:js
+        run: |
+          npm run lint:sh
+          npm run lint:bat
+          npm run lint:js
+        continue-on-error: false  # Continue even if there are errors
