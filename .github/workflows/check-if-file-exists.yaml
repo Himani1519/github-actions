@@ -3,7 +3,7 @@ name: Lint Check
 on:
   push:
     branches:
-      - main  
+      - main  # Change this to match your main branch
   pull_request:
 
 jobs:
@@ -14,14 +14,11 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Set up ShellCheck for .sh files
+    - name: Install ShellCheck
       run: sudo apt-get update && sudo apt-get install -y shellcheck
 
     - name: Lint .sh files
-      run: find . -type f -name "*.sh" -exec shellcheck {} \;
-
-    - name: Set up ShellCheck for .bat files
-      run: sudo apt-get install -y dos2unix
-
-    - name: Lint .bat files
-      run: find . -type f -name "*.bat" -exec dos2unix -k {} \; && find . -type f -name "*.bat" -exec shellcheck {} \;
+      run: |
+        for file in $(find . -name "*.sh"); do
+          shellcheck "$file" || { echo "Linting errors found in $file"; exit 1; }
+        done
