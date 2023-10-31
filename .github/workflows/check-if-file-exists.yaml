@@ -14,11 +14,24 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Install ShellCheck
+    - name: Set up ShellCheck for .sh files
       run: sudo apt-get update && sudo apt-get install -y shellcheck
 
     - name: Lint .sh files
-      run: |
-        for file in $(find . -name "*.sh"); do
-          shellcheck "$file" || { echo "Linting errors found in $file"; exit 1; }
-        done
+      run: find . -type f -name "*.sh" -exec shellcheck {} \;
+
+    - name: Set up ESLint for .js files
+      run: npm install eslint eslint-plugin-header
+
+    - name: Create ESLint configuration
+      run: echo "module.exports = { 'root': true, 'env': { 'browser': true, 'es6': true }, 'plugins': ['header'], 'rules': { 'header/header': [2, 'block', ['Your header text here'], 2] } };" > .eslintrc.js
+
+    - name: Lint .js files
+      run: eslint --ext .js .
+
+    - name: Set up dos2unix for .bat files
+      run: sudo apt-get install -y dos2unix
+
+    - name: Lint .bat files
+      run: find . -type f -name "*.bat" -exec dos2unix -k {} \;
+
