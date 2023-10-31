@@ -23,9 +23,6 @@ jobs:
     - name: Set up ESLint for .js files
       run: npm install eslint eslint-plugin-header
 
-    - name: Create ESLint configuration
-      run: echo "module.exports = { 'root': true, 'env': { 'browser': true, 'es6': true }, 'plugins': ['header'], 'rules': { 'header/header': [2, 'block', ['Your header text here'], 2] } };" > .eslintrc.js
-
     - name: Lint .js files
       run: eslint --ext .js .
 
@@ -34,4 +31,3 @@ jobs:
 
     - name: Lint .bat files
       run: find . -type f -name "*.bat" -exec dos2unix -k {} \;
-
