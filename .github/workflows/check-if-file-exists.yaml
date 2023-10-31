@@ -29,4 +29,4 @@ jobs:
         run: npm ci
 
       - name: Lint TypeScript
-        run: npm run lint:sh
+        run: npm run lint:sh && npm run lint:bat && npm run lint:js
