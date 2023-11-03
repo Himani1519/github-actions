@@ -14,12 +14,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up ShellCheck for .sh files
-        run: sudo apt-get update && sudo apt-get install -y shellcheck
-
-      - name: Set up dos2unix for .bat files
-        run: sudo apt-get install -y dos2unix
-
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
@@ -29,8 +23,4 @@ jobs:
         run: npm ci
 
       - name: Lint TypeScript
-        run: |
-          npm run lint:sh
-          npm run lint:bat
-          npm run lint:js
-        continue-on-error: false  # Continue even if there are errors
+        run: npm run lint
