@@ -26,7 +26,7 @@ module.exports = {
   parser: '@typescript-eslint/parser',
   plugins: ['header'],
   rules: {
-    'header/header-format': [
+    'header/header': [
       'error',
       {
         pattern: /^\s*\/\*{2}\n(?:\s+\w+[^\n]*\n)+\s+\*\/\n\s*SPDX-License-Identifier: EPL-2\.0\n\s*Copyright Contributors to the Zowe Project\.\n\s*\*\/$/,
