@@ -1,5 +1,7 @@
 /*
   This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html  
 */
 
 module.exports = {
@@ -24,7 +26,7 @@ module.exports = {
       2,         // Error level
       'block',   // Location
      [
-        '\n  This program and the accompanying materials are\n'
+        '\n  This program and the accompanying materials are\n  made available under the terms of the Eclipse Public License v2.0 which accompanies\n  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html'
      ],
       2,        // Comments
     ],
