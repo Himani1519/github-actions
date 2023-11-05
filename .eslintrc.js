@@ -27,11 +27,19 @@ module.exports = {
   plugins: ['header'],
   rules: {
     'header/header': [
-      'error',
-      {
-        pattern: /^\s*\/\*{2}\n(?:\s+\w+[^\n]*\n)+\s+\*\/\n\s*SPDX-License-Identifier: EPL-2\.0\n\s*Copyright Contributors to the Zowe Project\.\n\s*\*\/$/,
-        comments: 2,  // The number of comments to check
-      },
+      2,         // Error level
+      'block',   // Location
+      [         // Patterns
+        '\n This program and the accompanying materials are made available under the terms of the',
+        '\n Eclipse Public License v2.0 which accompanies this distribution, and is available at',
+        '\n https://www.eclipse.org/legal/epl-v20.html',
+        '\n',
+        '\n SPDX-License-Identifier: EPL-2.0',
+        '\n',
+        '\n Copyright Contributors to the Zowe Project.',
+        ' ',
+      ],
+      2,        // Comments
     ],
   },
 }
