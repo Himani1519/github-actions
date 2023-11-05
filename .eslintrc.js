@@ -25,7 +25,7 @@ module.exports = {
   ],
   parser: '@typescript-eslint/parser',
   plugins: ['header'],
-   rules: {
+  rules: {
     'header/header-format': [
       'error',
       {
