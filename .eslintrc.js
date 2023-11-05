@@ -24,9 +24,8 @@ module.exports = {
       2,         // Error level
       'block',   // Location
      [
-        '\nThis program and the accompanying materials are made available under the terms of the' +
-          '\n '
-      ],
+        '\nThis program and the accompanying materials are made available under the terms of the\n'
+     ],
       2,        // Comments
     ],
   },
