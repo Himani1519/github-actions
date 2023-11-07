@@ -9,18 +9,19 @@
 */
 
 module.exports = {
-  settings: {
-    'import/resolver': {
-      node: {
-        extensions: ['.js'], // Specify the extensions your modules use
-
-        // Add a custom "ignorePatterns" function to ignore specific paths
-        ignorePatterns: [
-          path => path.startsWith('../../../../../../bin') || path.includes('zlux-server-framework')
+    overrides: [
+    {
+      files: ['**/*.js', '**/*.mjs'], // Specify the file extensions where this configuration applies
+      rules: {
+        'import/no-unresolved': [
+          'error',
+          {
+            ignore: ['^../../../../../../bin/', 'zlux-server-framework'],
+          }, // Specify the regular expressions to ignore
         ],
       },
     },
-  },
+  ],
   env: {
     browser: true,
     es6: true,
